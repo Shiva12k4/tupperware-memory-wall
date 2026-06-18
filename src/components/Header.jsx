@@ -63,7 +63,7 @@ const Header = ({ onShareClick }) => {
         </div>
 
         {/* Right — Stats */}
-        <div className="flex items-center gap-4">
+       <div className="flex items-center gap-4 justify-center sm:justify-end">
           <div className="text-center">
             <Users className="text-pink-400 mx-auto mb-1" size={22} />
             <p className="text-purple-700 font-black text-xl">
