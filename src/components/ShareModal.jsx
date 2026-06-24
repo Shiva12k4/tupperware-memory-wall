@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API_URL, { fetchWithNgrok } from "../api";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import imageCompression from "browser-image-compression";
 
 const ShareModal = ({ onClose }) => {
   const [step, setStep] = useState(1);

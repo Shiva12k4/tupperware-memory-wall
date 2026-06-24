@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API_URL, { fetchWithNgrok } from "../api";
 import MemoryPopup from "./MemoryPopup";
+import { Share2 } from "lucide-react";
 
 const MemoryCard = ({ memory }) => {
   const [likes, setLikes] = useState(memory.likes);
@@ -71,13 +72,36 @@ const MemoryCard = ({ memory }) => {
         </div>
 
         {/* Like Button */}
-        <div className="px-3 pb-3 flex items-center justify-end gap-1">
+        {/* Like + Share */}
+        <div className="px-3 pb-3 flex items-center justify-between gap-1">
+          {/* Like — Left */}
           <button
             onClick={(e) => handleLike(e)}
             className={`flex items-center gap-1 transition-all duration-200 ${liked ? "scale-110" : ""}`}
           >
             <span className="text-lg">{liked ? "❤️" : "🤍"}</span>
             <span className="text-sm font-semibold text-gray-500">{likes}</span>
+          </button>
+
+          {/* Share — Right */}
+          <button
+            onClick={async (e) => {
+              e.stopPropagation();
+              try {
+                if (navigator.share) {
+                  await navigator.share({
+                    title: memory.story_title || memory.name,
+                    text: memory.description || memory.caption,
+                    url: window.location.href,
+                  });
+                }
+              } catch (err) {
+                console.error(err);
+              }
+            }}
+            className="text-gray-400 hover:text-purple-500 transition-all"
+          >
+            <Share2 size={16} />
           </button>
         </div>
       </div>
