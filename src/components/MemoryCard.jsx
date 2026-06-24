@@ -96,7 +96,6 @@ const MemoryCard = ({ memory }) => {
             src={memory.images?.[0] || memory.image_url || memory.image}
             alt={memory.name}
             loading="lazy"
-            crossOrigin="anonymous"
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
         </div>

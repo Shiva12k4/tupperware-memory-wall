@@ -181,7 +181,7 @@ const ShareModal = ({ onClose }) => {
       images.forEach((img) => data.append("images", img));
       videos.forEach((vid) => data.append("videos", vid));
 
-      const response = await fetchWithNgrok(`${API_URL}/api/submit-memory`, {
+      const response = await fetchWithNgrok(`${API_URL}/api/memories/submit-memory`, {
         method: "POST",
         body: data,
       });

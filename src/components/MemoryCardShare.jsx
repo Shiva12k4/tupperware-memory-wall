@@ -87,7 +87,6 @@ const MemoryCardShare = ({ onClose }) => {
               src={displayMemory.image}
               alt="memory"
               className="w-full h-48 object-cover"
-              crossOrigin="anonymous"
             />
           ) : displayMemory.video ? (
             <video
