@@ -47,12 +47,14 @@ const ShareModal = ({ onClose }) => {
   ];
 
   const categories = [
-    "Childhood Memories",
-    "Mum's Collection",
-    "Balik Kampung",
-    "Vintage Treasures",
-    "Three Generations",
-  ];
+  "All Memories",
+  "Childhood Memories",
+  "Funniest Memories",
+  "My Favorite Tupperware Product",
+  "Vintage Treasures (My Oldest Tupperware Product)",
+  "Three Generations (From Grandma to Me)",
+  "Other Memories",
+];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -432,6 +434,7 @@ const ShareModal = ({ onClose }) => {
                     placeholder="e.g. 1995"
                     min="1950"
                     max={new Date().getFullYear()}
+                    maxLength={4}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-purple-400"
                   />
                 </div>

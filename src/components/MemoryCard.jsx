@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import API_URL, { fetchWithNgrok } from "../api";
 import MemoryPopup from "./MemoryPopup";
-import { Share2 } from "lucide-react";
+import { Share2, Heart } from "lucide-react";
+import html2canvas from "html2canvas";
 
 const MemoryCard = ({ memory }) => {
   const [likes, setLikes] = useState(memory.likes);
   const [liked, setLiked] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const cardRef = useRef(null);
 
-  // ✅ Function yahan hoga — return se pehle
   const handleLike = async (e) => {
     e.stopPropagation();
     if (liked) {
@@ -26,9 +27,44 @@ const MemoryCard = ({ memory }) => {
     }
   };
 
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    try {
+      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/share`, {
+        method: "PATCH",
+      });
+
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+      });
+
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], "tupperware-memory.png", { type: "image/png" });
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: memory.story_title || memory.name,
+            text: memory.description || memory.caption,
+            files: [file],
+          });
+        } else if (navigator.share) {
+          await navigator.share({
+            title: memory.story_title || memory.name,
+            text: memory.description || memory.caption,
+            url: window.location.href,
+          });
+        }
+      }, "image/png");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <>
       <div
+        ref={cardRef}
         onClick={() => setShowPopup(true)}
         className="bg-pink-50 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
       >
@@ -60,6 +96,7 @@ const MemoryCard = ({ memory }) => {
             src={memory.images?.[0] || memory.image_url || memory.image}
             alt={memory.name}
             loading="lazy"
+            crossOrigin="anonymous"
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
         </div>
@@ -71,34 +108,23 @@ const MemoryCard = ({ memory }) => {
           </p>
         </div>
 
-        {/* Like Button */}
         {/* Like + Share */}
-        <div className="px-3 pb-3 flex items-center justify-between gap-1">
+        <div className="px-3 pb-3 flex items-center justify-between">
           {/* Like — Left */}
           <button
-            onClick={(e) => handleLike(e)}
+            onClick={handleLike}
             className={`flex items-center gap-1 transition-all duration-200 ${liked ? "scale-110" : ""}`}
           >
-            <span className="text-lg">{liked ? "❤️" : "🤍"}</span>
+            <Heart
+              size={18}
+              className={liked ? "text-red-500 fill-red-500" : "text-gray-400"}
+            />
             <span className="text-sm font-semibold text-gray-500">{likes}</span>
           </button>
 
           {/* Share — Right */}
           <button
-            onClick={async (e) => {
-              e.stopPropagation();
-              try {
-                if (navigator.share) {
-                  await navigator.share({
-                    title: memory.story_title || memory.name,
-                    text: memory.description || memory.caption,
-                    url: window.location.href,
-                  });
-                }
-              } catch (err) {
-                console.error(err);
-              }
-            }}
+            onClick={handleShare}
             className="text-gray-400 hover:text-purple-500 transition-all"
           >
             <Share2 size={16} />
