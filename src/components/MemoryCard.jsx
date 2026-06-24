@@ -13,11 +13,15 @@ const MemoryCard = ({ memory }) => {
     if (liked) {
       setLikes(likes - 1);
       setLiked(false);
-      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/unlike`, { method: "PATCH" });
+      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/unlike`, {
+        method: "PATCH",
+      });
     } else {
       setLikes(likes + 1);
       setLiked(true);
-      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/like`, { method: "PATCH" });
+      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/like`, {
+        method: "PATCH",
+      });
     }
   };
 
@@ -34,11 +38,17 @@ const MemoryCard = ({ memory }) => {
               {memory.name?.charAt(0)}
             </div>
             <div>
-              <p className="text-xs font-bold text-purple-800 leading-tight">{memory.name}</p>
-              <p className="text-xs text-blue-800 font-semibold">{memory.city}</p>
+              <p className="text-xs font-bold text-purple-800 leading-tight">
+                {memory.name}
+              </p>
+              <p className="text-xs text-blue-800 font-semibold">
+                {memory.city}
+              </p>
             </div>
           </div>
-          <span className={`${memory.yearColor || "bg-pink-400"} text-white text-xs font-bold px-2 py-1 rounded-full`}>
+          <span
+            className={`${memory.yearColor || "bg-pink-400"} text-white text-xs font-bold px-2 py-1 rounded-full`}
+          >
             {memory.year}
           </span>
         </div>
@@ -48,6 +58,7 @@ const MemoryCard = ({ memory }) => {
           <img
             src={memory.images?.[0] || memory.image_url || memory.image}
             alt={memory.name}
+            loading="lazy"
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
         </div>

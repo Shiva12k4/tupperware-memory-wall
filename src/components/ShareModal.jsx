@@ -58,13 +58,30 @@ const ShareModal = ({ onClose }) => {
     setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
   };
 
-  const handleImages = (e) => {
+  const handleImages = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 5) {
       alert("Maximum 5 images allowed!");
       return;
     }
-    setImages(files);
+
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      initialQuality: 0.8,
+      fileType: "image/webp",
+    };
+
+    try {
+      const compressed = await Promise.all(
+        files.map((file) => imageCompression(file, options)),
+      );
+      setImages(compressed);
+    } catch (err) {
+      console.error("Compression error:", err);
+      setImages(files);
+    }
   };
 
   const onDragEnd = (result) => {
@@ -168,6 +185,19 @@ const ShareModal = ({ onClose }) => {
 
       const result = await response.json();
       if (result.success) {
+        localStorage.setItem(
+          "myMemory",
+          JSON.stringify({
+            name: formData.name,
+            city: formData.city,
+            state: formData.state,
+            year: formData.year || new Date().getFullYear().toString(),
+            story_title: formData.story_title,
+            description: formData.description,
+            image: result.memory.images?.[0] || null,
+            video: result.memory.videos?.[0] || null,
+          }),
+        );
         setSubmitted(true);
       } else {
         alert(result.error || "Something went wrong!");
@@ -354,6 +384,7 @@ const ShareModal = ({ onClose }) => {
                     value={formData.story_title}
                     onChange={handleChange}
                     placeholder="e.g. My First Tupperware"
+                    maxLength={40}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-purple-400"
                   />
                   {errors.story_title && (
@@ -373,13 +404,19 @@ const ShareModal = ({ onClose }) => {
                     onChange={handleChange}
                     placeholder="Share your Tupperware memory..."
                     rows={4}
+                    maxLength={300}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-purple-400 resize-none"
                   />
-                  {errors.description && (
-                    <p className="text-red-400 text-xs mt-1">
-                      {errors.description}
+                  <div className="flex items-center justify-between mt-1">
+                    {errors.description && (
+                      <p className="text-red-400 text-xs">
+                        {errors.description}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-400 ml-auto">
+                      {formData.description.length}/300
                     </p>
-                  )}
+                  </div>
                 </div>
 
                 <div>
