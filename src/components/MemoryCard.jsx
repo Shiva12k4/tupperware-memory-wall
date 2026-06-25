@@ -127,9 +127,12 @@ const MemoryCard = ({ memory }) => {
           {/* Share — Right */}
           <button
             onClick={handleShare}
-            className="text-gray-400 hover:text-purple-500 transition-all"
+            className="flex items-center gap-1 text-gray-400 hover:text-purple-500 transition-all"
           >
             <Share2 size={16} />
+            <span className="text-sm font-semibold text-gray-500">
+              {memory.shares || 0}
+            </span>
           </button>
         </div>
       </div>
