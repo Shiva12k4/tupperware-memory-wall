@@ -8,7 +8,8 @@ import MemoryGrid from "./components/MemoryGrid";
 import API_URL, { fetchWithNgrok } from "./api";
 import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "./components/AdminDashboard";
-
+import CollagePage from "./components/CollagePage";
+import { Images } from "lucide-react";
 
 const App = () => {
   const [activeCategory, setActiveCategory] = useState("All Memories");
@@ -143,11 +144,21 @@ const App = () => {
                 }}
               />
             )}
+
+          
+            <a
+              href="/collage"
+              className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold px-4 py-3 rounded-full shadow-xl hover:opacity-90 flex items-center gap-2"
+            >
+              <Images size={18} />
+              <span className="text-sm">View Collage</span>
+            </a>
           </div>
         }
       />
 
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/collage" element={<CollagePage />} />
     </Routes>
   );
 };

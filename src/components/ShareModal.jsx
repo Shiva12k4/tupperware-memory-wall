@@ -58,6 +58,12 @@ const ShareModal = ({ onClose }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === "name") {
+      // Har word ka pehla letter capital
+      const capitalized = value.replace(/\b\w/g, (char) => char.toUpperCase());
+      setFormData({ ...formData, [name]: capitalized });
+      return;
+    }
     setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
   };
 
@@ -118,7 +124,11 @@ const ShareModal = ({ onClose }) => {
     const newErrors = {};
     if (!formData.name) newErrors.name = "Name is required";
     if (!formData.email) newErrors.email = "Email is required";
-    if (!formData.mobile) newErrors.mobile = "Mobile is required";
+    if (!formData.mobile) {
+      newErrors.mobile = "Mobile is required";
+    } else if (formData.mobile.length < 9 || formData.mobile.length > 12) {
+      newErrors.mobile = "Mobile number must be 9-12 digits";
+    }
     if (!formData.state) newErrors.state = "State is required";
     if (!formData.city) newErrors.city = "City is required";
     setErrors(newErrors);
@@ -131,6 +141,14 @@ const ShareModal = ({ onClose }) => {
       newErrors.story_title = "Story title is required";
     if (!formData.description)
       newErrors.description = "Description is required";
+    if (formData.year) {
+      const y = parseInt(formData.year);
+      if (formData.year.length !== 4) {
+        newErrors.year = "Please enter a valid 4-digit year";
+      } else if (y < 1946 || y > 2026) {
+        newErrors.year = "Year must be between 1946 and 2026";
+      }
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -219,6 +237,18 @@ const ShareModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
+        {loading && (
+          <div className="absolute inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-20 rounded-3xl">
+            <div className="w-12 h-12 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin mb-3" />
+            <p className="text-purple-700 font-semibold text-sm">
+              Submitting your memory...
+            </p>
+            <p className="text-gray-400 text-xs mt-1">
+              Please wait, uploading files...
+            </p>
+          </div>
+        )}
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -318,9 +348,13 @@ const ShareModal = ({ onClose }) => {
                       type="tel"
                       name="mobile"
                       value={formData.mobile}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, "");
+                        if (val.length <= 12) {
+                          setFormData({ ...formData, mobile: val });
+                        }
+                      }}
                       placeholder="123456789"
-                      maxLength={10}
                       className="flex-1 px-4 py-2 text-sm outline-none bg-transparent"
                     />
                   </div>
@@ -430,16 +464,21 @@ const ShareModal = ({ onClose }) => {
                     Year of Memory (Optional)
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     name="year"
                     value={formData.year}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, "");
+                      if (val.length <= 4) {
+                        setFormData({ ...formData, year: val });
+                      }
+                    }}
                     placeholder="e.g. 1995"
-                    min="1950"
-                    max={new Date().getFullYear()}
-                    maxLength={4}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-purple-400"
                   />
+                  {errors.year && (
+                    <p className="text-red-400 text-xs mt-1">{errors.year}</p>
+                  )}
                 </div>
 
                 <div>
@@ -639,16 +678,24 @@ const ShareModal = ({ onClose }) => {
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => setStep(2)}
-                    className="flex-1 border-2 border-purple-400 text-purple-600 font-bold py-3 rounded-xl hover:bg-purple-50"
+                    disabled={loading}
+                    className="flex-1 border-2 border-purple-400 text-purple-600 font-bold py-3 rounded-xl hover:bg-purple-50 disabled:opacity-50"
                   >
                     ← Back
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50"
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    {loading ? "Submitting..." : "Submit Memory →"}
+                    {loading ? (
+                      <>
+                        <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit Memory →"
+                    )}
                   </button>
                 </div>
               </div>

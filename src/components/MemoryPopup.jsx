@@ -34,7 +34,7 @@ const MemoryPopup = ({ memory, onClose }) => {
 
           {/* Media Slideshow */}
           {allMedia.length > 0 && (
-           <div className="relative w-full h-80 bg-gray-100 overflow-hidden">
+           <div className="relative w-full bg-gray-100 overflow-hidden">
 
               {allMedia[currentIndex].type === "image" ? (
                 <img
