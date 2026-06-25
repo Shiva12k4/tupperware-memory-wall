@@ -119,26 +119,33 @@ const CollagePage = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #B0E0E6 50%, #E0F0FF 100%)" }}>
+   <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 30%, #fce7f3 60%, #ede9fe 100%)" }}>
+{/* Banner */}
+<div className="relative flex items-center py-4 px-6 overflow-hidden"
+  style={{ background: "linear-gradient(135deg, #ffffff 0%, #fdf4ff 50%, #f5f3ff 100%)", borderBottom: "2px solid #e9d5ff" }}>
 
-      {/* Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white text-center py-2 px-4 flex items-center justify-center gap-2">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="animate-shine absolute top-0 h-full w-16 bg-white opacity-20 skew-x-12" />
-        </div>
-        <span className="text-lg font-black relative z-10">+</span>
-        <p className="text-sm font-semibold relative z-10">
-          Add your memory here and win daily prizes with Tupperware.
-        </p>
-      </div>
+  {/* Back Button — Left */}
+  <a
+    href="/"
+    className="flex-shrink-0 flex items-center gap-1 bg-purple-100 text-purple-600 font-bold text-sm px-3 py-2 rounded-full hover:bg-purple-200 transition-all relative z-10"
+  >
+    ← Back
+  </a>
 
-      {/* Header */}
-      <div className="text-center py-6 px-4">
-        <h1 className="text-3xl sm:text-4xl font-black text-purple-800 drop-shadow-sm">
-          Malaysia's Memory Wall
-        </h1>
-        <p className="text-purple-600 text-sm mt-1">Every container holds a memory ♡</p>
-      </div>
+  {/* Title — Center */}
+  <div className="flex-1 text-center relative z-10">
+    <h1 className="text-xl sm:text-3xl font-black text-purple-800 drop-shadow-sm">
+      Malaysia's Memory Collage
+    </h1>
+    <p className="text-pink-500 text-xs sm:text-sm mt-1 font-semibold">
+      Every container holds a memory ♡
+    </p>
+  </div>
+
+  {/* Right spacer */}
+  <div className="flex-shrink-0 w-16" />
+
+</div>
 
       {/* Collage */}
       <div className="px-4 pb-12">
