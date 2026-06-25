@@ -1,9 +1,11 @@
 import { Camera, Sparkles, Trophy, Gift, ArrowRight, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import MemoryCardShare from "./MemoryCardShare";
+import FeaturedModal from "./FeaturedModal";
 
 const BottomCTAs = ({ onShareClick }) => {
   const [showCard, setShowCard] = useState(false);
+  const [showFeatured, setShowFeatured] = useState(false);
 
   return (
     <>
@@ -88,7 +90,7 @@ const BottomCTAs = ({ onShareClick }) => {
             </div>
             <div className="flex items-center gap-1">
               <div>
-                <p className="text-xs text-purple-600 font-semibold underline cursor-pointer">View All</p>
+                <p onClick={() => setShowFeatured(true)} className="text-xs text-purple-600 font-semibold underline cursor-pointer">View All</p>
                 <p className="text-xs text-purple-600 font-semibold underline cursor-pointer">View All Winners</p>
               </div>
               <ChevronRight className="text-purple-400" size={16} />
@@ -118,6 +120,7 @@ const BottomCTAs = ({ onShareClick }) => {
 
       {/* Memory Card Share Popup */}
       {showCard && <MemoryCardShare onClose={() => setShowCard(false)} />}
+        {showFeatured && <FeaturedModal onClose={() => setShowFeatured(false)} />}
     </>
   );
 };
