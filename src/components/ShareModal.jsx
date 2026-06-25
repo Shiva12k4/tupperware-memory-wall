@@ -47,14 +47,14 @@ const ShareModal = ({ onClose }) => {
   ];
 
   const categories = [
-  "All Memories",
-  "Childhood Memories",
-  "Funniest Memories",
-  "My Favorite Tupperware Product",
-  "Vintage Treasures (My Oldest Tupperware Product)",
-  "Three Generations (From Grandma to Me)",
-  "Other Memories",
-];
+    "All Memories",
+    "Childhood Memories",
+    "Funniest Memories",
+    "My Favorite Tupperware Product",
+    "Vintage Treasures (My Oldest Tupperware Product)",
+    "Three Generations (From Grandma to Me)",
+    "Other Memories",
+  ];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -181,26 +181,29 @@ const ShareModal = ({ onClose }) => {
       images.forEach((img) => data.append("images", img));
       videos.forEach((vid) => data.append("videos", vid));
 
-      const response = await fetchWithNgrok(`${API_URL}/api/memories/submit-memory`, {
-        method: "POST",
-        body: data,
-      });
+      const response = await fetchWithNgrok(
+        `${API_URL}/api/memories/submit-memory`,
+        {
+          method: "POST",
+          body: data,
+        },
+      );
 
       const result = await response.json();
       if (result.success) {
-        localStorage.setItem(
-          "myMemory",
-          JSON.stringify({
-            name: formData.name,
-            city: formData.city,
-            state: formData.state,
-            year: formData.year || new Date().getFullYear().toString(),
-            story_title: formData.story_title,
-            description: formData.description,
-            image: result.memory.images?.[0] || null,
-            video: result.memory.videos?.[0] || null,
-          }),
-        );
+        const existing = JSON.parse(localStorage.getItem("myMemories") || "[]");
+        existing.push({
+          id: result.memory.id,
+          name: formData.name,
+          city: formData.city,
+          state: formData.state,
+          year: formData.year || new Date().getFullYear().toString(),
+          story_title: formData.story_title,
+          description: formData.description,
+          image: result.memory.images?.[0] || null,
+          video: result.memory.videos?.[0] || null,
+        });
+        localStorage.setItem("myMemories", JSON.stringify(existing));
         setSubmitted(true);
       } else {
         alert(result.error || "Something went wrong!");
