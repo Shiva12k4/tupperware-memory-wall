@@ -37,11 +37,14 @@ const MemoryCard = ({ memory }) => {
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: null,
+        allowTaint: true,
+        backgroundColor: "#fdf2f8",
       });
 
       canvas.toBlob(async (blob) => {
-        const file = new File([blob], "tupperware-memory.png", { type: "image/png" });
+        const file = new File([blob], "tupperware-memory.png", {
+          type: "image/png",
+        });
         if (navigator.share && navigator.canShare({ files: [file] })) {
           await navigator.share({
             title: memory.story_title || memory.name,

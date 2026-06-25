@@ -7,7 +7,7 @@ const Header = ({ onShareClick }) => {
     memories: "...",
     states: "...",
     photos: "...",
-    videos: "..."
+    videos: "...",
   });
 
   useEffect(() => {
@@ -32,21 +32,14 @@ const Header = ({ onShareClick }) => {
 
   return (
     <div className="bg-gradient-to-r from-pink-50 to-purple-50 px-6 py-4">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Left — Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center text-white font-black text-2xl shadow-lg">
-            80
-          </div>
-          <div>
-            <p className="text-purple-700 font-black text-xl tracking-wide">
-              Tupperware®
-            </p>
-            <p className="text-pink-500 font-bold text-sm">80 YEARS FRESH.</p>
-            <p className="text-purple-400 text-xs italic">
-              Countless Memories. ♡
-            </p>
-          </div>
+        <div className="flex items-center justify-center sm:justify-start">
+          <img
+            src="/80th_logo_with_tagline.png"
+            alt="Tupperware 80 Years"
+            className="h-20 w-auto object-contain"
+          />
         </div>
 
         {/* Center — Title */}
@@ -63,7 +56,7 @@ const Header = ({ onShareClick }) => {
         </div>
 
         {/* Right — Stats */}
-       <div className="flex items-center gap-4 justify-center sm:justify-end">
+        <div className="flex items-center gap-4 justify-center sm:justify-end">
           <div className="text-center">
             <Users className="text-pink-400 mx-auto mb-1" size={22} />
             <p className="text-purple-700 font-black text-xl">

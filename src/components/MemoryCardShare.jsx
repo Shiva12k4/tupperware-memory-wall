@@ -15,15 +15,17 @@ const MemoryCardShare = ({ onClose }) => {
   }, []);
 
   const dummyMemory = {
-  name: "Aisyah Rahman",
-  city: "Kuala Lumpur",
-  state: "Selangor",
-  year: "1992",
-  story_title: "My First Tupperware",
-  description: "This was my first Tupperware from my mom when I started secondary school. Still using it today!",
-  image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-  video: null,
-};
+    name: "Aisyah Rahman",
+    city: "Kuala Lumpur",
+    state: "Selangor",
+    year: "1992",
+    story_title: "My First Tupperware",
+    description:
+      "This was my first Tupperware from my mom when I started secondary school. Still using it today!",
+    image:
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
+    video: null,
+  };
 
   const displayMemory = memory || dummyMemory;
 
@@ -38,7 +40,9 @@ const MemoryCardShare = ({ onClose }) => {
       });
 
       canvas.toBlob(async (blob) => {
-        const file = new File([blob], "my-tupperware-memory.png", { type: "image/png" });
+        const file = new File([blob], "my-tupperware-memory.png", {
+          type: "image/png",
+        });
 
         if (navigator.share && navigator.canShare({ files: [file] })) {
           await navigator.share({
@@ -65,9 +69,11 @@ const MemoryCardShare = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 relative">
-
         {/* Close Button */}
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
           <X size={20} />
         </button>
 
@@ -105,7 +111,9 @@ const MemoryCardShare = ({ onClose }) => {
             {/* Tupperware Branding */}
             <div className="flex items-center justify-between mb-3">
               <div className="bg-white bg-opacity-20 rounded-full px-3 py-1">
-                <p className="text-white text-xs font-black">Tupperware® 80 Years</p>
+                <p className="text-white text-xs font-black">
+                  Tupperware® 80 Years
+                </p>
               </div>
               <span className="bg-white bg-opacity-20 text-white text-xs font-bold px-2 py-1 rounded-full">
                 {displayMemory.year}
@@ -113,11 +121,17 @@ const MemoryCardShare = ({ onClose }) => {
             </div>
 
             {/* Name + Location */}
-            <p className="text-white font-black text-lg leading-tight">{displayMemory.name}</p>
-            <p className="text-pink-200 text-xs mb-2">{displayMemory.city}, {displayMemory.state}</p>
+            <p className="text-white font-black text-lg leading-tight">
+              {displayMemory.name}
+            </p>
+            <p className="text-pink-200 text-xs mb-2">
+              {displayMemory.city}, {displayMemory.state}
+            </p>
 
             {/* Story Title */}
-            <p className="text-white font-bold text-sm mb-1">{displayMemory.story_title}</p>
+            <p className="text-white font-bold text-sm mb-1">
+              {displayMemory.story_title}
+            </p>
 
             {/* Description */}
             <p className="text-pink-100 text-xs leading-relaxed line-clamp-3">
@@ -146,7 +160,10 @@ const MemoryCardShare = ({ onClose }) => {
           <button
             onClick={async () => {
               if (!cardRef.current) return;
-              const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true });
+              const canvas = await html2canvas(cardRef.current, {
+                scale: 2,
+                useCORS: true,
+              });
               const url = canvas.toDataURL("image/png");
               const link = document.createElement("a");
               link.href = url;
@@ -164,7 +181,6 @@ const MemoryCardShare = ({ onClose }) => {
             Submit your memory to see your personalized card!
           </p>
         )}
-
       </div>
     </div>
   );

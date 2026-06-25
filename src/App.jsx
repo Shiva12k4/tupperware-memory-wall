@@ -9,6 +9,7 @@ import API_URL, { fetchWithNgrok } from "./api";
 import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "./components/AdminDashboard";
 
+
 const App = () => {
   const [activeCategory, setActiveCategory] = useState("All Memories");
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,7 +17,6 @@ const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState("recent");
   const [period, setPeriod] = useState("all");
 
   // Fetch approved memories from backend
@@ -53,26 +53,34 @@ const App = () => {
         m.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         m.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // Period filter
       let matchPeriod = true;
       if (period !== "all") {
-        const now = new Date();
         const created = new Date(m.created_at);
-        if (period === "week") {
+        const now = new Date();
+
+        if (period === "today") {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          matchPeriod = created >= today;
+        } else if (period === "yesterday") {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          yesterday.setHours(0, 0, 0, 0);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          matchPeriod = created >= yesterday && created < today;
+        } else if (period === "week") {
           const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
           matchPeriod = created >= weekAgo;
         } else if (period === "month") {
-          const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
+          const monthAgo = new Date(now);
+          monthAgo.setMonth(monthAgo.getMonth() - 1);
           matchPeriod = created >= monthAgo;
         }
       }
       return matchCategory && matchSearch && matchPeriod;
     })
-    .sort((a, b) => {
-      if (sortBy === "liked") return (b.likes || 0) - (a.likes || 0);
-      if (sortBy === "shared") return (b.shares || 0) - (a.shares || 0);
-      return new Date(b.created_at) - new Date(a.created_at); // recent
-    });
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   return (
     <Routes>
@@ -83,6 +91,25 @@ const App = () => {
             {/* Header */}
             <Header onShareClick={() => setShowModal(true)} />
 
+            {/* Top Banner */}
+            <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white text-center py-2 px-4 flex items-center justify-center gap-2">
+              {/* Animated shine line */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="animate-shine absolute top-0 h-full w-16 bg-white opacity-20 skew-x-12" />
+              </div>
+
+              <span className="text-lg font-black relative z-10">+</span>
+              <p className="text-sm font-semibold relative z-10">
+                Add your memory here and win daily prizes with Tupperware.
+              </p>
+              <button
+                onClick={() => setShowModal(true)}
+                className="ml-2 bg-white text-purple-600 font-bold text-xs px-3 py-1 rounded-full hover:bg-pink-50 relative z-10"
+              >
+                Add Now
+              </button>
+            </div>
+
             {/* Main Container */}
             <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100 rounded-3xl shadow-md mx-2 my-4 overflow-hidden">
               <FilterBar
@@ -90,8 +117,6 @@ const App = () => {
                 setActiveCategory={setActiveCategory}
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
                 period={period}
                 setPeriod={setPeriod}
               />

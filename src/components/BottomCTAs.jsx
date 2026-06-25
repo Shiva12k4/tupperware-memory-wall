@@ -1,4 +1,11 @@
-import { Camera, Sparkles, Trophy, Gift, ArrowRight, ChevronRight } from "lucide-react";
+import {
+  Camera,
+  Sparkles,
+  Trophy,
+  Gift,
+  ArrowRight,
+  ChevronRight,
+} from "lucide-react";
 import { useState } from "react";
 import MemoryCardShare from "./MemoryCardShare";
 import FeaturedModal from "./FeaturedModal";
@@ -10,7 +17,6 @@ const BottomCTAs = ({ onShareClick }) => {
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-6 py-6">
-        
         {/* 1 — Share Your Memory */}
         <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 rounded-2xl p-5 flex flex-col justify-between min-h-36 shadow-lg">
           <div>
@@ -21,7 +27,8 @@ const BottomCTAs = ({ onShareClick }) => {
               Share Your Tupperware Memory
             </h3>
             <p className="text-pink-100 text-xs mt-1">
-              Be part of Malaysia's largest memory collection and inspire generations.
+              Be part of Malaysia's largest memory collection and inspire
+              generations.
             </p>
           </div>
           <button
@@ -81,20 +88,31 @@ const BottomCTAs = ({ onShareClick }) => {
               Celebrating the most loved memories of the week.
             </p>
           </div>
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center justify-between mt-3">
             <div className="flex -space-x-2">
-              <img src="https://randomuser.me/api/portraits/women/44.jpg" className="w-8 h-8 rounded-full border-2 border-white object-cover" />
-              <img src="https://randomuser.me/api/portraits/men/32.jpg" className="w-8 h-8 rounded-full border-2 border-white object-cover" />
-              <img src="https://randomuser.me/api/portraits/women/68.jpg" className="w-8 h-8 rounded-full border-2 border-white object-cover" />
-              <img src="https://randomuser.me/api/portraits/men/12.jpg" className="w-8 h-8 rounded-full border-2 border-white object-cover" />
+              <img
+                src="https://randomuser.me/api/portraits/women/44.jpg"
+                className="w-8 h-8 rounded-full border-2 border-white object-cover"
+              />
+              <img
+                src="https://randomuser.me/api/portraits/men/32.jpg"
+                className="w-8 h-8 rounded-full border-2 border-white object-cover"
+              />
+              <img
+                src="https://randomuser.me/api/portraits/women/68.jpg"
+                className="w-8 h-8 rounded-full border-2 border-white object-cover"
+              />
+              <img
+                src="https://randomuser.me/api/portraits/men/12.jpg"
+                className="w-8 h-8 rounded-full border-2 border-white object-cover"
+              />
             </div>
-            <div className="flex items-center gap-1">
-              <div>
-                <p onClick={() => setShowFeatured(true)} className="text-xs text-purple-600 font-semibold underline cursor-pointer">View All</p>
-                <p className="text-xs text-purple-600 font-semibold underline cursor-pointer">View All Winners</p>
-              </div>
-              <ChevronRight className="text-purple-400" size={16} />
-            </div>
+            <button
+              onClick={() => setShowFeatured(true)}
+              className="flex items-center gap-1 text-xs text-purple-600 font-bold underline cursor-pointer hover:text-purple-800"
+            >
+              View All <ChevronRight size={14} />
+            </button>
           </div>
         </div>
 
@@ -115,12 +133,11 @@ const BottomCTAs = ({ onShareClick }) => {
             JOIN CHALLENGE <ChevronRight size={14} />
           </button>
         </div> */}
-
       </div>
 
       {/* Memory Card Share Popup */}
       {showCard && <MemoryCardShare onClose={() => setShowCard(false)} />}
-        {showFeatured && <FeaturedModal onClose={() => setShowFeatured(false)} />}
+      {showFeatured && <FeaturedModal onClose={() => setShowFeatured(false)} />}
     </>
   );
 };
