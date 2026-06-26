@@ -138,7 +138,7 @@ const CollagePage = () => {
       Malaysia's Memory Collage
     </h1>
     <p className="text-pink-500 text-xs sm:text-sm mt-1 font-semibold">
-      Every container holds a memory ♡
+      Every container holds a memory.
     </p>
   </div>
 

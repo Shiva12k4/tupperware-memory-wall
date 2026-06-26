@@ -52,7 +52,7 @@ const Header = ({ onShareClick }) => {
             Tupperware Memory Wall
           </h2>
           <p className="text-gray-500 text-sm mt-1">
-            Every container holds a memory. ♡
+            Every container holds a memory.
           </p>
         </div>
 

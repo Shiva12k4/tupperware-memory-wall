@@ -147,7 +147,7 @@ const App = () => {
 
             <a
               href="/collage"
-              className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold px-4 py-3 rounded-full shadow-xl flex items-center gap-2 animate-bounce hover:animate-none hover:opacity-90"
+              className="fixed bottom-6 right-6 z-30 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold px-4 py-3 rounded-full shadow-xl flex items-center gap-2 animate-bounce hover:animate-none hover:opacity-90"
             >
               <Images size={18} />
               <span className="text-sm">View Collage</span>
