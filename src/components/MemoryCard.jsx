@@ -74,7 +74,7 @@ const MemoryCard = ({ memory }) => {
         {/* Top — Avatar + Name + Year */}
         <div className="flex items-center justify-between px-3 pt-3 pb-1">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-s font-bold">
               {memory.name?.charAt(0)}
             </div>
             <div>
@@ -137,9 +137,12 @@ const MemoryCard = ({ memory }) => {
         </div>
       </div>
 
-      {showPopup && (
-        <MemoryPopup memory={memory} onClose={() => setShowPopup(false)} />
-      )}
+     {showPopup && (
+  <MemoryPopup
+    memory={{...memory, likes: likes}}
+    onClose={() => setShowPopup(false)}
+  />
+)}
     </>
   );
 };
