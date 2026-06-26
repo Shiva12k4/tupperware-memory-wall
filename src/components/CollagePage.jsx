@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Heart } from "lucide-react";
 import API_URL, { fetchWithNgrok } from "../api";
 import MemoryPopup from "./MemoryPopup";
 
@@ -15,12 +15,22 @@ const PolaroidCard = ({ memory, onClick }) => {
         transform: `rotate(${rotation}deg)`,
         transition: "transform 0.2s",
       }}
-      onMouseEnter={e => e.currentTarget.style.transform = `rotate(0deg) scale(1.05)`}
-      onMouseLeave={e => e.currentTarget.style.transform = `rotate(${rotation}deg) scale(1)`}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.transform = `rotate(0deg) scale(1.05)`)
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.transform = `rotate(${rotation}deg) scale(1)`)
+      }
     >
       {/* Clip */}
       <div className="flex justify-center -mb-1 relative z-10">
-        <div className="w-4 h-6 bg-yellow-500 rounded-sm shadow-md" style={{ clipPath: "polygon(20% 0%, 80% 0%, 100% 30%, 80% 100%, 20% 100%, 0% 30%)" }} />
+        <div
+          className="w-4 h-6 bg-yellow-500 rounded-sm shadow-md"
+          style={{
+            clipPath:
+              "polygon(20% 0%, 80% 0%, 100% 30%, 80% 100%, 20% 100%, 0% 30%)",
+          }}
+        />
       </div>
 
       {/* Polaroid */}
@@ -33,11 +43,17 @@ const PolaroidCard = ({ memory, onClick }) => {
             style={{ height: "75px" }}
           />
         ) : (
-          <div className="w-full bg-purple-200 flex items-center justify-center" style={{ height: "75px" }}>
+          <div
+            className="w-full bg-purple-200 flex items-center justify-center"
+            style={{ height: "75px" }}
+          >
             <span className="text-2xl">📦</span>
           </div>
         )}
-        <p className="text-center text-gray-600 mt-1 truncate" style={{ fontSize: "8px" }}>
+        <p
+          className="text-center text-gray-600 mt-1 truncate"
+          style={{ fontSize: "8px" }}
+        >
           {memory.name}
         </p>
       </div>
@@ -54,7 +70,8 @@ const StringRow = ({ memories, onClick }) => {
         style={{
           top: "12px",
           height: "3px",
-          background: "linear-gradient(90deg, #8B4513, #A0522D, #8B4513, #A0522D)",
+          background:
+            "linear-gradient(90deg, #8B4513, #A0522D, #8B4513, #A0522D)",
           boxShadow: "0 1px 3px rgba(0,0,0,0.4)",
           zIndex: 0,
         }}
@@ -91,7 +108,7 @@ const CollagePage = () => {
         if (pageNum === 1) {
           setMemories(slice);
         } else {
-          setMemories(prev => [...prev, ...slice]);
+          setMemories((prev) => [...prev, ...slice]);
         }
         setHasMore(end < all.length);
       }
@@ -119,33 +136,44 @@ const CollagePage = () => {
   }
 
   return (
-   <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 30%, #fce7f3 60%, #ede9fe 100%)" }}>
-{/* Banner */}
-<div className="relative flex items-center py-4 px-6 overflow-hidden"
-  style={{ background: "linear-gradient(135deg, #ffffff 0%, #fdf4ff 50%, #f5f3ff 100%)", borderBottom: "2px solid #e9d5ff" }}>
+    <div
+      className="min-h-screen"
+      style={{
+        background:
+          "linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 30%, #fce7f3 60%, #ede9fe 100%)",
+      }}
+    >
+      {/* Banner */}
+      <div
+        className="relative flex items-center py-4 px-6 overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, #ffffff 0%, #fdf4ff 50%, #f5f3ff 100%)",
+          borderBottom: "2px solid #e9d5ff",
+        }}
+      >
+        {/* Back Button — Left */}
+        <a
+          href="/"
+          className="flex-shrink-0 flex items-center gap-1 bg-purple-100 text-purple-600 font-bold text-sm px-3 py-2 rounded-full hover:bg-purple-200 transition-all relative z-10"
+        >
+          ← Back
+        </a>
 
-  {/* Back Button — Left */}
-  <a
-    href="/"
-    className="flex-shrink-0 flex items-center gap-1 bg-purple-100 text-purple-600 font-bold text-sm px-3 py-2 rounded-full hover:bg-purple-200 transition-all relative z-10"
-  >
-    ← Back
-  </a>
+        {/* Title — Center */}
+        <div className="flex-1 text-center relative z-10">
+          <h1 className="text-xl sm:text-3xl font-black text-purple-800 drop-shadow-sm">
+            Malaysia's Memory Collage
+          </h1>
+          <p className="text-gray-500 text-sm mt-1 flex items-center justify-center gap-1">
+            Every container holds a memory.
+            <Heart size={14} className="text-pink-400 fill-pink-400" />
+          </p>
+        </div>
 
-  {/* Title — Center */}
-  <div className="flex-1 text-center relative z-10">
-    <h1 className="text-xl sm:text-3xl font-black text-purple-800 drop-shadow-sm">
-      Malaysia's Memory Collage
-    </h1>
-    <p className="text-pink-500 text-xs sm:text-sm mt-1 font-semibold">
-      Every container holds a memory.
-    </p>
-  </div>
-
-  {/* Right spacer */}
-  <div className="flex-shrink-0 w-16" />
-
-</div>
+        {/* Right spacer */}
+        <div className="flex-shrink-0 w-16" />
+      </div>
 
       {/* Collage */}
       <div className="px-4 pb-12">
