@@ -3,7 +3,7 @@ import API_URL, { fetchWithNgrok } from "../api";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import imageCompression from "browser-image-compression";
 
-const ShareModal = ({ onClose }) => {
+const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -153,86 +153,64 @@ const ShareModal = ({ onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!formData.terms_accepted) {
-      alert("Please accept Terms & Conditions!");
-      return;
-    }
-    if (!formData.marketing_consent) {
-      alert("Please accept Marketing Consent!");
-      return;
-    }
-    if (!formData.content_consent) {
-      alert("Please accept Content Usage Consent!");
-      return;
-    }
+const handleSubmit = async () => {
+  if (!formData.terms_accepted) { alert("Please accept Terms & Conditions!"); return; }
+  if (!formData.marketing_consent) { alert("Please accept Marketing Consent!"); return; }
+  if (!formData.content_consent) { alert("Please accept Content Usage Consent!"); return; }
+  for (const video of videos) {
+    if (video.size > 20 * 1024 * 1024) { alert("Each video must be under 20MB!"); return; }
+  }
+  if (images.length === 0) { alert("Please upload at least one photo!"); return; }
 
-    // Video size check
-    for (const video of videos) {
-      if (video.size > 20 * 1024 * 1024) {
-        alert("Each video must be under 20MB!");
-        return;
-      }
+  // Form band karo, toast dikhao
+  onSubmitStart();
+
+  try {
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("email", formData.email);
+    data.append("mobile", formData.mobile);
+    data.append("city", formData.city);
+    data.append("state", formData.state);
+    data.append("story_title", formData.story_title);
+    data.append("description", formData.description);
+    data.append("year", formData.year);
+    data.append("category", formData.category);
+    data.append("terms_accepted", formData.terms_accepted);
+    data.append("marketing_consent", formData.marketing_consent);
+    data.append("content_consent", formData.content_consent);
+    images.forEach((img) => data.append("images", img));
+    videos.forEach((vid) => data.append("videos", vid));
+
+    const response = await fetchWithNgrok(`${API_URL}/api/memories/submit-memory`, {
+      method: "POST",
+      body: data,
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      const existing = JSON.parse(localStorage.getItem("myMemories") || "[]");
+      existing.push({
+        id: result.memory.id,
+        name: formData.name,
+        city: formData.city,
+        state: formData.state,
+        year: formData.year || new Date().getFullYear().toString(),
+        story_title: formData.story_title,
+        description: formData.description,
+        image: result.memory.images?.[0] || null,
+        video: result.memory.videos?.[0] || null,
+      });
+      localStorage.setItem("myMemories", JSON.stringify(existing));
+      onSubmitSuccess();
+    } else {
+      alert(result.error || "Something went wrong!");
     }
-    if (images.length === 0) {
-      alert("Please upload at least one photo!");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const data = new FormData();
-
-      data.append("name", formData.name);
-      data.append("email", formData.email);
-      data.append("mobile", formData.mobile);
-      data.append("city", formData.city);
-      data.append("state", formData.state);
-      data.append("story_title", formData.story_title);
-      data.append("description", formData.description);
-      data.append("year", formData.year);
-      data.append("category", formData.category);
-      data.append("terms_accepted", formData.terms_accepted);
-      data.append("marketing_consent", formData.marketing_consent);
-      data.append("content_consent", formData.content_consent);
-
-      images.forEach((img) => data.append("images", img));
-      videos.forEach((vid) => data.append("videos", vid));
-
-      const response = await fetchWithNgrok(
-        `${API_URL}/api/memories/submit-memory`,
-        {
-          method: "POST",
-          body: data,
-        },
-      );
-
-      const result = await response.json();
-      if (result.success) {
-        const existing = JSON.parse(localStorage.getItem("myMemories") || "[]");
-        existing.push({
-          id: result.memory.id,
-          name: formData.name,
-          city: formData.city,
-          state: formData.state,
-          year: formData.year || new Date().getFullYear().toString(),
-          story_title: formData.story_title,
-          description: formData.description,
-          image: result.memory.images?.[0] || null,
-          video: result.memory.videos?.[0] || null,
-        });
-        localStorage.setItem("myMemories", JSON.stringify(existing));
-        setSubmitted(true);
-      } else {
-        alert(result.error || "Something went wrong!");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Server error. Please try again!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Server error. Please try again!");
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
