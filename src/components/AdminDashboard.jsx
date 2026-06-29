@@ -204,7 +204,7 @@ const AdminDashboard = () => {
   const handleSetWinner = async (id) => {
     if (!window.confirm("Set this memory as Today's Winner?")) return;
     try {
-     await fetchWithNgrok(`${API_URL}/memories/${id}/set-winner`, { method: "PATCH" });
+     await fetchWithNgrok(`${API_URL}/api/admin/memories/${id}/set-winner`, { method: "PATCH" });
       alert("Winner set successfully!");
       fetchApproved();
       fetchStats();

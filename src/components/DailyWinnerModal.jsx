@@ -9,7 +9,7 @@ const DailyWinnerModal = ({ onClose }) => {
   useEffect(() => {
     const fetchWinner = async () => {
       try {
-        const res = await fetchWithNgrok(`${API_URL}/memories/winner`);
+        const res = await fetchWithNgrok(`${API_URL}/api/admin/memories/winner`);
         const data = await res.json();
         if (data.success) setWinner(data.memory);
       } catch (err) {
