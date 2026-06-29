@@ -133,14 +133,18 @@ const App = () => {
   </div>
 </div>
 {/* Promo Banner Image */}
-{/* Promo Banner Image */}
 <div className="w-full overflow-hidden">
   <img
-    src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&h=200&fit=crop"
+    src="/Tupperware_End_of_Season_Sale-03_1000x.webp"
     alt="Tupperware Promotion"
-    className="w-full object-cover"
-    style={{ height: "inherit" }}
+    className="hidden sm:block w-full object-cover"
   />
+  {/* Mobile Banner */}
+<img
+  src="/Tupperware_End_of_Season_Sale-01_x800.webp"
+  alt="Tupperware Promotion"
+  className="block sm:hidden w-full object-cover"
+/>
 </div>
               {/* Main Container */}
               <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100 rounded-3xl shadow-md mx-2 my-4 overflow-hidden">

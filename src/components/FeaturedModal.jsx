@@ -160,63 +160,52 @@ const FeaturedModal = ({ onClose }) => {
   const [loading, setLoading] = useState(true);
   const [periodOpen, setPeriodOpen] = useState(false);
   const periodRef = useRef(null);
+  const [weeklyWinners, setWeeklyWinners] = useState({ liked: null, shared: null });
 
-  const fetchMemories = async () => {
-    setLoading(true);
-    try {
-      const res = await fetchWithNgrok(`${API_URL}/api/memories`);
-      const data = await res.json();
-      if (data.success) {
-        let filtered = data.memories;
+const fetchMemories = async () => {
+  setLoading(true);
+  try {
+    const res = await fetchWithNgrok(`${API_URL}/api/memories`);
+    const data = await res.json();
+    if (data.success) {
+      let all = data.memories;
 
-        const now = new Date();
-        if (period === "today") {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          filtered = filtered.filter((m) => new Date(m.created_at) >= today);
-        } else if (period === "yesterday") {
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          yesterday.setHours(0, 0, 0, 0);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          filtered = filtered.filter((m) => {
-            const d = new Date(m.created_at);
-            return d >= yesterday && d < today;
-          });
-        } else if (period === "week") {
-          const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
-          filtered = filtered.filter((m) => new Date(m.created_at) >= weekAgo);
-        } else if (period === "month") {
-          const monthAgo = new Date(now);
-          monthAgo.setMonth(monthAgo.getMonth() - 1);
-          filtered = filtered.filter((m) => new Date(m.created_at) >= monthAgo);
-        } else if (period === "custom" && customStart && customEnd) {
-          const start = new Date(customStart);
-          const end = new Date(customEnd);
-          end.setHours(23, 59, 59);
-          filtered = filtered.filter((m) => {
-            const d = new Date(m.created_at);
-            return d >= start && d <= end;
-          });
-        }
+      // Weekly Winners — This Week ka top 1 liked + top 1 shared
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+weekAgo.setHours(0, 0, 0, 0);
+      const thisWeek = all.filter(m => new Date(m.created_at) >= weekAgo);
+      const topLiked = [...thisWeek].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0] || null;
+      const topShared = [...thisWeek].sort((a, b) => (b.shares || 0) - (a.shares || 0))[0] || null;
+      setWeeklyWinners({ liked: topLiked, shared: topShared });
 
-        const liked = [...filtered]
-          .sort((a, b) => (b.likes || 0) - (a.likes || 0))
-          .slice(0, 10);
-        const shared = [...filtered]
-          .sort((a, b) => (b.shares || 0) - (a.shares || 0))
-          .slice(0, 10);
-
-        setLikedMemories(liked);
-        setSharedMemories(shared);
+      // Period filter
+      let filtered = all;
+      const now = new Date();
+      if (period === "week") {
+        filtered = filtered.filter(m => new Date(m.created_at) >= weekAgo);
+      } else if (period === "month") {
+        const monthAgo = new Date(now); monthAgo.setMonth(monthAgo.getMonth() - 1);
+        filtered = filtered.filter(m => new Date(m.created_at) >= monthAgo);
+      } else if (period === "custom" && customStart && customEnd) {
+        const start = new Date(customStart);
+        const end = new Date(customEnd); end.setHours(23, 59, 59);
+        filtered = filtered.filter(m => {
+          const d = new Date(m.created_at);
+          return d >= start && d <= end;
+        });
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+
+      const liked = [...filtered].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 10);
+      const shared = [...filtered].sort((a, b) => (b.shares || 0) - (a.shares || 0)).slice(0, 10);
+      setLikedMemories(liked);
+      setSharedMemories(shared);
     }
-  };
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchMemories();
@@ -338,29 +327,70 @@ const FeaturedModal = ({ onClose }) => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
-          {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin mx-auto mb-3" />
-                <p className="text-gray-400 text-sm">Loading memories...</p>
-              </div>
+  {loading ? (
+    <div className="flex items-center justify-center h-full">
+      <div className="text-center">
+        <div className="w-12 h-12 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin mx-auto mb-3" />
+        <p className="text-gray-400 text-sm">Loading memories...</p>
+      </div>
+    </div>
+  ) : (
+    <>
+      {/* Weekly Winners Section */}
+      {(weeklyWinners.liked || weeklyWinners.shared) && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-xl bg-yellow-100 flex items-center justify-center">
+              <Trophy size={16} className="text-yellow-500" />
             </div>
-          ) : (
-            <>
-              <MemorySlider
-                memories={likedMemories}
-                title="Most Liked"
-                icon={<Heart size={16} className="text-red-400 fill-red-400" />}
-              />
-              <div className="border-t border-purple-100 my-2" />
-              <MemorySlider
-                memories={sharedMemories}
-                title="Most Shared"
-                icon={<Share2 size={16} className="text-purple-500" />}
-              />
-            </>
-          )}
+            <h3 className="text-base font-black text-purple-700">This Week's Winners</h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {weeklyWinners.liked && (
+              <div className="relative pt-4">
+                <div className="absolute -top-2 -left-2 z-10 bg-red-500 text-white text-xs font-black px-2 py-1 rounded-full flex items-center gap-1">
+                  <Heart size={10} className="fill-white" /> Most Liked
+                </div>
+                <MemoryCard memory={{
+                  ...weeklyWinners.liked,
+                  yearColor: "bg-pink-400",
+                  caption: weeklyWinners.liked.description,
+                }} />
+              </div>
+            )}
+            {weeklyWinners.shared && (
+              <div className="relative pt-4">
+                <div className="absolute -top-2 -left-2 z-10 bg-purple-500 text-white text-xs font-black px-2 py-1 rounded-full flex items-center gap-1">
+                  <Share2 size={10} /> Most Shared
+                </div>
+                <MemoryCard memory={{
+                  ...weeklyWinners.shared,
+                  yearColor: "bg-purple-400",
+                  caption: weeklyWinners.shared.description,
+                }} />
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-purple-100 my-6" />
         </div>
+      )}
+
+      <MemorySlider
+        memories={likedMemories}
+        title="Most Liked"
+        icon={<Heart size={16} className="text-red-400 fill-red-400" />}
+      />
+      <div className="border-t border-purple-100 my-2" />
+      <MemorySlider
+        memories={sharedMemories}
+        title="Most Shared"
+        icon={<Share2 size={16} className="text-purple-500" />}
+      />
+    </>
+  )}
+</div>
       </div>
     </div>
   );

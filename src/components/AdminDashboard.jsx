@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   CheckCircle, XCircle, Clock, Eye, LogOut, Users, Hourglass, ThumbsUp,
-  Trash2, RotateCcw, ChevronRight, ChevronDown, Download, Heart, Share2,
+  Trash2, RotateCcw, ChevronRight, ChevronDown, Download, Heart, Share2, Trophy,
 } from "lucide-react";
 import API_URL, { fetchWithNgrok } from "../api";
 
@@ -27,19 +27,16 @@ const ViewPopup = ({ memory, onClose, onApprove, onReject, onDelete, onMoveToPen
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">✕</button>
         <h2 className="text-xl font-black text-purple-700 mb-4">Memory Details</h2>
-
         {memory.images && memory.images.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-4">
             {memory.images.map((img, i) => <img key={i} src={img} alt={`img-${i}`} className="w-32 h-32 object-cover rounded-xl" />)}
           </div>
         )}
-
         {memory.videos && memory.videos.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-4">
             {memory.videos.map((vid, i) => <video key={i} src={vid} controls className="w-48 h-32 rounded-xl object-cover" />)}
           </div>
         )}
-
         <div className="grid grid-cols-2 gap-3 mb-4">
           {[["Name", memory.name], ["Email", memory.email], ["Mobile", `+60 ${memory.mobile}`], ["Location", `${memory.city}, ${memory.state}`], ["Category", memory.category], ["Year", memory.year || "N/A"]].map(([label, value]) => (
             <div key={label} className="bg-gray-50 rounded-xl p-3">
@@ -48,17 +45,14 @@ const ViewPopup = ({ memory, onClose, onApprove, onReject, onDelete, onMoveToPen
             </div>
           ))}
         </div>
-
         <div className="bg-gray-50 rounded-xl p-3 mb-3">
           <p className="text-xs text-gray-400">Story Title</p>
           <p className="text-sm font-semibold text-gray-700">{memory.story_title}</p>
         </div>
-
         <div className="bg-gray-50 rounded-xl p-3 mb-4">
           <p className="text-xs text-gray-400">Description</p>
           <p className="text-sm text-gray-700">{memory.description}</p>
         </div>
-
         <div className="flex gap-3 flex-wrap">
           {activeTab === "pending" && (
             <>
@@ -101,10 +95,17 @@ const AdminDashboard = () => {
   const [timeFilterOpen, setTimeFilterOpen] = useState(false);
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
+  const [approvedDateFilter, setApprovedDateFilter] = useState("all");
+  const [approvedDateFilterOpen, setApprovedDateFilterOpen] = useState(false);
   const timeFilterRef = useRef(null);
+  const approvedDateRef = useRef(null);
 
   const timePeriodLabels = {
     today: "Today", yesterday: "Yesterday", week: "This Week", month: "This Month", custom: "Custom",
+  };
+
+  const datePeriodLabels = {
+    all: "All Time", today: "Today", yesterday: "Yesterday", week: "This Week", month: "This Month",
   };
 
   const fetchPending = async () => {
@@ -160,6 +161,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const handleClick = (e) => {
       if (timeFilterRef.current && !timeFilterRef.current.contains(e.target)) setTimeFilterOpen(false);
+      if (approvedDateRef.current && !approvedDateRef.current.contains(e.target)) setApprovedDateFilterOpen(false);
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -199,6 +201,16 @@ const AdminDashboard = () => {
     } catch (err) { console.error(err); }
   };
 
+  const handleSetWinner = async (id) => {
+    if (!window.confirm("Set this memory as Today's Winner?")) return;
+    try {
+     await fetchWithNgrok(`${API_URL}/api/memories/${id}/set-winner`, { method: "PATCH" });
+      alert("Winner set successfully!");
+      fetchApproved();
+      fetchStats();
+    } catch (err) { console.error(err); }
+  };
+
   const handleMoveToPending = async (id) => {
     try {
       await fetchWithNgrok(`${API_URL}/api/admin/memories/${id}/pending`, { method: "PATCH" });
@@ -212,6 +224,7 @@ const AdminDashboard = () => {
     setCurrentPage(1);
     setApprovedFilter("all");
     setSelectedIds([]);
+    setApprovedDateFilter("all");
     if (tab === "pending") fetchPending();
     else if (tab === "approved") fetchApproved();
     else if (tab === "rejected") fetchRejected();
@@ -219,6 +232,27 @@ const AdminDashboard = () => {
 
   const getFilteredMemories = () => {
     let filtered = [...memories];
+
+    // Date filter — approved tab pe hamesha apply hoga
+    if (activeTab === "approved" && approvedDateFilter !== "all") {
+      const now = new Date();
+      if (approvedDateFilter === "today") {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        filtered = filtered.filter(m => new Date(m.created_at) >= today);
+      } else if (approvedDateFilter === "yesterday") {
+        const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); yesterday.setHours(0, 0, 0, 0);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        filtered = filtered.filter(m => new Date(m.created_at) >= yesterday && new Date(m.created_at) < today);
+      } else if (approvedDateFilter === "week") {
+        const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(m => new Date(m.created_at) >= weekAgo);
+      } else if (approvedDateFilter === "month") {
+        const monthAgo = new Date(now); monthAgo.setMonth(monthAgo.getMonth() - 1);
+        filtered = filtered.filter(m => new Date(m.created_at) >= monthAgo);
+      }
+    }
+
+    // Most liked / shared filter
     if (activeTab === "approved" && approvedFilter !== "all") {
       const now = new Date();
       if (approvedTimePeriod === "today") {
@@ -242,6 +276,7 @@ const AdminDashboard = () => {
       if (approvedFilter === "liked") filtered = filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 10);
       else if (approvedFilter === "shared") filtered = filtered.sort((a, b) => (b.shares || 0) - (a.shares || 0)).slice(0, 10);
     }
+
     return filtered;
   };
 
@@ -304,11 +339,13 @@ const AdminDashboard = () => {
     } catch (err) { console.error(err); }
   };
 
-  const handleExportCSV = () => {
-    const headers = ["Name", "Email", "Mobile", "City", "State", "Story Title", "Description", "Year", "Category", "Likes", "Shares", "Images", "Videos", "Created At"];
-    const rows = memories.map(m => [
+  const handleExportCSV = (winnersOnly = false) => {
+    const dataToExport = winnersOnly ? memories.filter(m => m.is_winner) : memories;
+    const headers = ["Name", "Email", "Mobile", "City", "State", "Story Title", "Description", "Year", "Category", "Likes", "Shares", "Winner", "Images", "Videos", "Created At"];
+    const rows = dataToExport.map(m => [
       m.name, m.email, `+60${m.mobile}`, m.city, m.state,
       m.story_title, m.description, m.year, m.category, m.likes, m.shares || 0,
+      m.is_winner ? "Yes" : "No",
       (m.images || []).join(" | "), (m.videos || []).join(" | "),
       new Date(m.created_at).toLocaleDateString()
     ]);
@@ -317,7 +354,7 @@ const AdminDashboard = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `approved-memories-${new Date().toISOString().split("T")[0]}.csv`;
+    link.download = `${winnersOnly ? "winners" : "approved-memories"}-${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
   };
 
@@ -405,7 +442,9 @@ const AdminDashboard = () => {
                   {f === "all" ? "All" : f === "liked" ? "Most Liked" : "Most Shared"}
                 </button>
               ))}
-              {approvedFilter !== "all" && (
+
+              {/* Time filter for liked/shared */}
+              {/* {approvedFilter !== "all" && (
                 <div ref={timeFilterRef} className="relative">
                   <button onClick={() => setTimeFilterOpen(!timeFilterOpen)} className="flex items-center gap-2 bg-white border border-gray-200 text-purple-600 font-semibold text-sm px-3 py-1.5 rounded-full hover:bg-purple-50">
                     {timePeriodLabels[approvedTimePeriod]}
@@ -423,19 +462,45 @@ const AdminDashboard = () => {
                   )}
                 </div>
               )}
+
               {approvedFilter !== "all" && approvedTimePeriod === "custom" && (
                 <div className="flex items-center gap-2">
                   <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm outline-none focus:border-purple-400" />
                   <span className="text-gray-400 text-xs">to</span>
                   <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm outline-none focus:border-purple-400" />
                 </div>
+              )} */}
+
+              {/* Date filter — hamesha dikhega approved tab pe */}
+              <div ref={approvedDateRef} className="relative">
+                <button onClick={() => setApprovedDateFilterOpen(!approvedDateFilterOpen)} className="flex items-center gap-2 bg-white border border-gray-200 text-purple-600 font-semibold text-sm px-3 py-1.5 rounded-full hover:bg-purple-50">
+                  {datePeriodLabels[approvedDateFilter]}
+                  <ChevronDown size={13} className={`transition-transform ${approvedDateFilterOpen ? "rotate-180" : ""}`} />
+                </button>
+                {approvedDateFilterOpen && (
+                  <div className="absolute top-10 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 min-w-40 py-2">
+                    {[{ label: "All Time", value: "all" }, { label: "Today", value: "today" }, { label: "Yesterday", value: "yesterday" }, { label: "This Week", value: "week" }, { label: "This Month", value: "month" }].map(opt => (
+                      <button key={opt.value} onClick={() => { setApprovedDateFilter(opt.value); setApprovedDateFilterOpen(false); setCurrentPage(1); }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-purple-50 ${approvedDateFilter === opt.value ? "text-purple-600 font-bold bg-purple-50" : "text-gray-600"}`}>
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Export buttons */}
+              {memories.length > 0 && (
+                <div className="flex gap-2">
+                  <button onClick={() => handleExportCSV(false)} className="flex items-center gap-2 bg-purple-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-purple-700">
+                    <Download size={15} /> Export CSV
+                  </button>
+                  {/* <button onClick={() => handleExportCSV(true)} className="flex items-center gap-2 bg-yellow-500 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-yellow-600">
+                    <Trophy size={15} /> Winners CSV
+                  </button> */}
+                </div>
               )}
             </>
-          )}
-          {activeTab === "approved" && memories.length > 0 && (
-            <button onClick={handleExportCSV} className="flex items-center gap-2 bg-purple-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-purple-700">
-              <Download size={15} /> Export CSV
-            </button>
           )}
         </div>
       </div>
@@ -447,6 +512,18 @@ const AdminDashboard = () => {
             <p className="text-sm font-semibold text-purple-700">{selectedIds.length} selected</p>
             <div className="flex gap-2">
               <button onClick={handleBulkApprove} className="flex items-center gap-1 bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-green-600"><CheckCircle size={14} /> Approve</button>
+              <button onClick={handleBulkReject} className="flex items-center gap-1 bg-red-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-red-600"><XCircle size={14} /> Reject</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "approved" && selectedIds.length > 0 && (
+        <div className="px-4 sm:px-8 mb-4">
+          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+            <p className="text-sm font-semibold text-green-700">{selectedIds.length} selected</p>
+            <div className="flex gap-2 flex-wrap">
+              <button onClick={handleBulkMoveToPending} className="flex items-center gap-1 bg-yellow-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-yellow-600"><RotateCcw size={14} /> Move to Pending</button>
               <button onClick={handleBulkReject} className="flex items-center gap-1 bg-red-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-red-600"><XCircle size={14} /> Reject</button>
             </div>
           </div>
@@ -487,7 +564,7 @@ const AdminDashboard = () => {
               {/* Desktop Header */}
               <div className="hidden sm:grid grid-cols-12 gap-2 px-6 py-3 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100 text-xs font-black text-purple-600 uppercase tracking-wide items-center">
                 <div className="col-span-2 flex items-center gap-2">
-                  {(activeTab === "pending" || activeTab === "rejected") && (
+                  {(activeTab === "pending" || activeTab === "rejected" || activeTab === "approved") && (
                     <input type="checkbox" checked={selectedIds.length > 0 && selectedIds.length === paginatedMemories.length} onChange={() => toggleSelectAll(paginatedMemories.map(m => m.id))} className="w-3.5 h-3.5 cursor-pointer" />
                   )}
                   <span>Name</span>
@@ -510,16 +587,21 @@ const AdminDashboard = () => {
 
               {/* Rows */}
               {paginatedMemories.map((memory, index) => (
-                <div key={memory.id} className={`border-b border-gray-50 hover:bg-purple-50 transition-all ${index % 2 === 0 ? "bg-white" : "bg-gray-50/30"}`}>
+                <div key={memory.id} className={`border-b border-gray-50 hover:bg-purple-50 transition-all ${
+                  memory.is_winner
+                    ? "bg-yellow-50 border-l-4 border-l-yellow-400"
+                    : index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
+                }`}>
 
                   {/* Desktop Row */}
                   <div className="hidden sm:grid grid-cols-12 gap-2 px-6 py-4 items-center text-sm">
                     <div className="col-span-2 flex items-center gap-2">
-                      {(activeTab === "pending" || activeTab === "rejected") && (
+                      {(activeTab === "pending" || activeTab === "rejected" || activeTab === "approved") && (
                         <input type="checkbox" checked={selectedIds.includes(memory.id)} onChange={() => toggleSelect(memory.id)} className="w-3.5 h-3.5 cursor-pointer flex-shrink-0" />
                       )}
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{memory.name?.charAt(0)}</div>
                       <span className="font-bold text-gray-700 truncate">{memory.name}</span>
+                      {memory.is_winner && <Trophy size={13} className="text-yellow-500 flex-shrink-0" />}
                     </div>
                     <div className="col-span-2 text-gray-500 truncate text-xs">{memory.email}</div>
                     <div className="col-span-1 text-gray-500 truncate text-xs">+60 {memory.mobile}</div>
@@ -553,6 +635,7 @@ const AdminDashboard = () => {
                       )}
                       {activeTab === "approved" && (
                         <>
+                          <button onClick={() => handleSetWinner(memory.id)} className="p-1.5 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500" title="Set as Winner"><Trophy size={13} /></button>
                           <button onClick={() => handleMoveToPending(memory.id)} className="p-1.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600" title="Move to Pending"><RotateCcw size={13} /></button>
                           <button onClick={() => handleDelete(memory.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600" title="Delete"><Trash2 size={13} /></button>
                         </>
@@ -571,11 +654,12 @@ const AdminDashboard = () => {
                   {/* Mobile Row */}
                   <div className="sm:hidden flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-2">
-                      {(activeTab === "pending" || activeTab === "rejected") && (
+                      {(activeTab === "pending" || activeTab === "rejected" || activeTab === "approved") && (
                         <input type="checkbox" checked={selectedIds.includes(memory.id)} onChange={() => toggleSelect(memory.id)} className="w-3.5 h-3.5 cursor-pointer" />
                       )}
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">{memory.name?.charAt(0)}</div>
                       <span className="font-bold text-gray-700 text-sm">{memory.name}</span>
+                      {memory.is_winner && <Trophy size={13} className="text-yellow-500 flex-shrink-0" />}
                     </div>
                     <div className="flex items-center gap-1">
                       {activeTab === "pending" && (
@@ -586,6 +670,7 @@ const AdminDashboard = () => {
                       )}
                       {activeTab === "approved" && (
                         <>
+                          <button onClick={() => handleSetWinner(memory.id)} className="p-1.5 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500"><Trophy size={14} /></button>
                           <button onClick={() => handleMoveToPending(memory.id)} className="p-1.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"><RotateCcw size={14} /></button>
                           <button onClick={() => handleDelete(memory.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600"><Trash2 size={14} /></button>
                         </>

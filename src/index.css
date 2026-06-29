@@ -35,3 +35,13 @@ input, textarea {
   50% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(0.5); opacity: 0.3; }
 }
+@keyframes cracker {
+  0% { transform: translate(0, 0) rotate(0deg) scale(0); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1); opacity: 0; }
+}
+
+.cracker-piece {
+  animation: cracker 1s ease-out forwards;
+  animation-fill-mode: forwards;
+}
