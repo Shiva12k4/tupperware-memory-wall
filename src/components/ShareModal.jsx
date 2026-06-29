@@ -17,7 +17,6 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
     story_title: "",
     description: "",
     year: "",
-    category: "Childhood Memories",
     terms_accepted: false,
     marketing_consent: false,
     content_consent: false,
@@ -46,15 +45,15 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
     "Terengganu",
   ];
 
-  const categories = [
-    "All Memories",
-    "Childhood Memories",
-    "Funniest Memories",
-    "My Favorite Tupperware Product",
-    "Vintage Treasures (My Oldest Tupperware Product)",
-    "Three Generations (From Grandma to Me)",
-    "Other Memories",
-  ];
+  // const categories = [
+  //   "All Memories",
+  //   "Childhood Memories",
+  //   "Funniest Memories",
+  //   "My Favorite Tupperware Product",
+  //   "Vintage Treasures (My Oldest Tupperware Product)",
+  //   "Three Generations (From Grandma to Me)",
+  //   "Other Memories",
+  // ];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -175,7 +174,7 @@ const handleSubmit = async () => {
     data.append("story_title", formData.story_title);
     data.append("description", formData.description);
     data.append("year", formData.year);
-    data.append("category", formData.category);
+    // data.append("category", formData.category);
     data.append("terms_accepted", formData.terms_accepted);
     data.append("marketing_consent", formData.marketing_consent);
     data.append("content_consent", formData.content_consent);
@@ -459,7 +458,7 @@ const handleSubmit = async () => {
                   )}
                 </div>
 
-                <div>
+                {/* <div>
                   <label className="text-sm font-semibold text-gray-600 mb-1 block">
                     Category
                   </label>
@@ -475,7 +474,7 @@ const handleSubmit = async () => {
                       </option>
                     ))}
                   </select>
-                </div>
+                </div> */}
 
                 <div className="flex gap-2">
                   <button

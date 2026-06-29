@@ -45,7 +45,7 @@ const App = () => {
 
   const filtered = memories
     .filter((m) => {
-      const matchCategory = activeCategory === "All Memories" || m.category === activeCategory;
+      // const matchCategory = activeCategory === "All Memories" || m.category === activeCategory;
       const matchSearch =
         m.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         m.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -70,32 +70,39 @@ const App = () => {
           matchPeriod = created >= monthAgo;
         }
       }
-      return matchCategory && matchSearch && matchPeriod;
+      return  matchSearch && matchPeriod;
     })
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   return (
     <>
+      
       {/* Toast Notification */}
-      {submitStatus && (
-        <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl transition-all ${
-          submitStatus === "submitting"
-            ? "bg-white border border-purple-200"
-            : "bg-green-50 border border-green-200"
-        }`}>
-          {submitStatus === "submitting" ? (
-            <>
-              <div className="w-5 h-5 rounded-full border-2 border-purple-200 border-t-purple-600 animate-spin flex-shrink-0" />
-              <p className="text-purple-700 font-semibold text-sm">Submitting your memory...</p>
-            </>
-          ) : (
-            <>
-              <CheckCircle className="text-green-500 flex-shrink-0" size={20} />
-              <p className="text-green-700 font-semibold text-sm">Memory Submitted!</p>
-            </>
-          )}
-        </div>
+{submitStatus && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className={`flex flex-col items-center gap-3 px-8 py-6 rounded-3xl shadow-2xl pointer-events-auto transition-all ${
+      submitStatus === "submitting"
+        ? "bg-white border border-purple-200"
+        : "bg-white border border-green-200"
+    }`}>
+      {submitStatus === "submitting" ? (
+        <>
+          <div className="w-12 h-12 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin" />
+          <p className="text-purple-700 font-bold text-base">Submitting your memory...</p>
+          <p className="text-gray-400 text-sm">Please wait, uploading files...</p>
+        </>
+      ) : (
+        <>
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+            <CheckCircle className="text-green-500" size={36} />
+          </div>
+          <p className="text-green-700 font-black text-xl">Memory Submitted!</p>
+          <p className="text-gray-400 text-sm text-center">Your memory has been submitted for review.</p>
+        </>
       )}
+    </div>
+  </div>
+)}
 
       <Routes>
         <Route
@@ -105,22 +112,36 @@ const App = () => {
               <Header onShareClick={() => setShowModal(true)} />
 
               {/* Top Banner */}
-              <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white text-center py-2 px-4 flex items-center justify-center gap-2">
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="animate-shine absolute top-0 h-full w-16 bg-white opacity-20 skew-x-12" />
-                </div>
-                <span className="text-lg font-black relative z-10">+</span>
-                <p className="text-sm font-semibold relative z-10">
-                  Add your memory here and win daily prizes with Tupperware.
-                </p>
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="ml-2 bg-white text-purple-600 font-bold text-xs px-3 py-1 rounded-full hover:bg-pink-50 relative z-10"
-                >
-                  Add Now
-                </button>
-              </div>
+            <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white py-10 px-4 flex items-center justify-center gap-2 flex-wrap">
+  <div className="absolute inset-0 pointer-events-none">
+    <div className="animate-shine absolute top-0 h-full w-16 bg-white opacity-20 skew-x-12" />
+  </div>
 
+  <div className="flex items-center justify-center gap-2 relative z-10 flex-wrap">
+    <span className="font-black text-base sm:text-lg animate-pulse whitespace-nowrap">
+  + Add your memory
+</span>
+<p className="text-base sm:text-lg font-semibold whitespace-nowrap">
+  here and win daily prizes with Tupperware.
+</p>
+<button
+  onClick={() => setShowModal(true)}
+  className="bg-white text-purple-600 font-bold text-sm px-4 py-1.5 rounded-full hover:bg-pink-50 whitespace-nowrap"
+>
+  Add Now
+</button>
+  </div>
+</div>
+{/* Promo Banner Image */}
+{/* Promo Banner Image */}
+<div className="w-full overflow-hidden">
+  <img
+    src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&h=200&fit=crop"
+    alt="Tupperware Promotion"
+    className="w-full object-cover"
+    style={{ height: "inherit" }}
+  />
+</div>
               {/* Main Container */}
               <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100 rounded-3xl shadow-md mx-2 my-4 overflow-hidden">
                 <FilterBar

@@ -60,7 +60,7 @@ const FilterBar = ({
         <div className="flex items-center gap-3">
 
           {/* Categories Dropdown — Desktop */}
-          <div ref={categoryRef} className="relative">
+          {/* <div ref={categoryRef} className="relative">
             <button
               onClick={() => { setCategoryOpen(!categoryOpen); setFilterOpen(false); }}
               className="flex items-center gap-2 bg-white border border-gray-200 text-purple-600 font-semibold text-sm px-4 py-2 rounded-full hover:bg-purple-50 transition-all"
@@ -83,7 +83,7 @@ const FilterBar = ({
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Period Dropdown — Desktop */}
           <div ref={filterRef} className="relative">
@@ -146,7 +146,7 @@ const FilterBar = ({
         <div className="flex gap-3">
 
           {/* Categories Dropdown — Mobile */}
-          <div ref={categoryRefMobile} className="relative flex-1">
+          {/* <div ref={categoryRefMobile} className="relative flex-1">
             <button
               onClick={() => { setCategoryOpen(!categoryOpen); setFilterOpen(false); }}
               className="w-full flex items-center justify-between gap-2 bg-white border border-gray-200 text-purple-600 font-semibold text-sm px-4 py-2 rounded-full hover:bg-purple-50 transition-all"
@@ -169,7 +169,7 @@ const FilterBar = ({
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Period Dropdown — Mobile */}
           <div ref={filterRefMobile} className="relative flex-1">

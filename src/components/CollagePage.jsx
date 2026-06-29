@@ -1,91 +1,6 @@
 import { useState, useEffect } from "react";
-import { X, Heart } from "lucide-react";
 import API_URL, { fetchWithNgrok } from "../api";
 import MemoryPopup from "./MemoryPopup";
-
-const PolaroidCard = ({ memory, onClick }) => {
-  const rotations = [-6, -4, -2, 0, 2, 4, 6, -3, 3, -5, 5, 1, -1];
-  const rotation = rotations[memory.id % rotations.length];
-
-  return (
-    <div
-      onClick={() => onClick(memory)}
-      className="cursor-pointer inline-block"
-      style={{
-        transform: `rotate(${rotation}deg)`,
-        transition: "transform 0.2s",
-      }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.transform = `rotate(0deg) scale(1.05)`)
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.transform = `rotate(${rotation}deg) scale(1)`)
-      }
-    >
-      {/* Clip */}
-      <div className="flex justify-center -mb-1 relative z-10">
-        <div
-          className="w-4 h-6 bg-yellow-500 rounded-sm shadow-md"
-          style={{
-            clipPath:
-              "polygon(20% 0%, 80% 0%, 100% 30%, 80% 100%, 20% 100%, 0% 30%)",
-          }}
-        />
-      </div>
-
-      {/* Polaroid */}
-      <div className="bg-white shadow-lg p-1.5 pb-6" style={{ width: "90px" }}>
-        {memory.images?.[0] ? (
-          <img
-            src={memory.images[0]}
-            alt={memory.name}
-            className="w-full object-cover"
-            style={{ height: "75px" }}
-          />
-        ) : (
-          <div
-            className="w-full bg-purple-200 flex items-center justify-center"
-            style={{ height: "75px" }}
-          >
-            <span className="text-2xl">📦</span>
-          </div>
-        )}
-        <p
-          className="text-center text-gray-600 mt-1 truncate"
-          style={{ fontSize: "8px" }}
-        >
-          {memory.name}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-const StringRow = ({ memories, onClick }) => {
-  return (
-    <div className="relative mb-8">
-      {/* String/Rope */}
-      <div
-        className="absolute w-full"
-        style={{
-          top: "12px",
-          height: "3px",
-          background:
-            "linear-gradient(90deg, #8B4513, #A0522D, #8B4513, #A0522D)",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.4)",
-          zIndex: 0,
-        }}
-      />
-
-      {/* Polaroids */}
-      <div className="flex justify-around items-start pt-2 flex-wrap gap-1 px-4">
-        {memories.map((memory) => (
-          <PolaroidCard key={memory.id} memory={memory} onClick={onClick} />
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const CollagePage = () => {
   const [memories, setMemories] = useState([]);
@@ -94,7 +9,6 @@ const CollagePage = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const ITEMS_PER_PAGE = 40;
-  const ITEMS_PER_ROW = 8;
 
   const fetchMemories = async (pageNum = 1) => {
     try {
@@ -105,11 +19,8 @@ const CollagePage = () => {
         const start = (pageNum - 1) * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
         const slice = all.slice(start, end);
-        if (pageNum === 1) {
-          setMemories(slice);
-        } else {
-          setMemories((prev) => [...prev, ...slice]);
-        }
+        if (pageNum === 1) setMemories(slice);
+        else setMemories(prev => [...prev, ...slice]);
         setHasMore(end < all.length);
       }
     } catch (err) {
@@ -129,54 +40,35 @@ const CollagePage = () => {
     fetchMemories(nextPage);
   };
 
-  // Split into rows of 8
-  const rows = [];
-  for (let i = 0; i < memories.length; i += ITEMS_PER_ROW) {
-    rows.push(memories.slice(i, i + ITEMS_PER_ROW));
-  }
-
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background:
-          "linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 30%, #fce7f3 60%, #ede9fe 100%)",
-      }}
-    >
+    <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 30%, #fce7f3 60%, #ede9fe 100%)" }}>
+
       {/* Banner */}
-      <div
-        className="relative flex items-center py-4 px-6 overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(135deg, #ffffff 0%, #fdf4ff 50%, #f5f3ff 100%)",
-          borderBottom: "2px solid #e9d5ff",
-        }}
-      >
-        {/* Back Button — Left */}
-        <a
-          href="/"
-          className="flex-shrink-0 flex items-center gap-1 bg-purple-100 text-purple-600 font-bold text-sm px-3 py-2 rounded-full hover:bg-purple-200 transition-all relative z-10"
-        >
+      <div className="relative flex items-center py-4 px-6 overflow-hidden bg-white border-b-2 border-purple-100">
+
+      
+
+        {/* Back Button */}
+        <a href="/" className="flex-shrink-0 flex items-center gap-1 bg-purple-100 text-purple-600 font-bold text-sm px-3 py-2 rounded-full hover:bg-purple-200 transition-all relative z-10">
           ← Back
         </a>
 
-        {/* Title — Center */}
+        {/* Title */}
         <div className="flex-1 text-center relative z-10">
           <h1 className="text-xl sm:text-3xl font-black text-purple-800 drop-shadow-sm">
             Malaysia's Memory Collage
           </h1>
-          <p className="text-gray-500 text-sm mt-1 flex items-center justify-center gap-1">
-            Every container holds a memory.
-            <Heart size={14} className="text-pink-400 fill-pink-400" />
+          <p className="text-pink-500 text-xs sm:text-sm mt-1 font-semibold">
+            Every container holds a memory ♡
           </p>
         </div>
 
-        {/* Right spacer */}
+        {/* Spacer */}
         <div className="flex-shrink-0 w-16" />
       </div>
 
-      {/* Collage */}
-      <div className="px-4 pb-12">
+      {/* Grid */}
+      <div className="p-2 sm:p-4">
         {loading ? (
           <div className="text-center py-20">
             <p className="text-purple-700 font-semibold">Loading memories...</p>
@@ -187,13 +79,52 @@ const CollagePage = () => {
           </div>
         ) : (
           <>
-            {rows.map((row, i) => (
-              <StringRow key={i} memories={row} onClick={setSelectedMemory} />
-            ))}
+            {/* Instagram Grid */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 sm:gap-2">
+              {memories.map((memory) => (
+                <div
+                  key={memory.id}
+                  onClick={() => setSelectedMemory(memory)}
+                  className="cursor-pointer group overflow-hidden rounded-lg sm:rounded-xl bg-white"
+                >
+                  {/* Image */}
+                  {memory.images?.[0] ? (
+                    <div className="relative aspect-square overflow-hidden">
+                      <img
+                        src={memory.images[0]}
+                        alt={memory.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {/* Desktop Hover Overlay */}
+                      <div className="hidden sm:flex absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+                        <p className="text-white font-black text-sm text-center px-2 leading-tight drop-shadow">
+                          {memory.name}
+                        </p>
+                        <p className="text-pink-200 text-xs mt-1 drop-shadow">
+                          {memory.city} · {memory.year}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="aspect-square bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center">
+                      <span className="text-2xl">📦</span>
+                    </div>
+                  )}
+
+                 
+                  {/* Mobile — Always visible below image */}
+<div className="sm:hidden px-2 py-1.5 bg-white text-center">
+  <p className="text-purple-800 font-bold text-xs truncate">{memory.name}</p>
+  <p className="text-pink-500 text-xs truncate">{memory.city} · {memory.year}</p>
+</div>
+                </div>
+              ))}
+            </div>
 
             {/* Load More */}
             {hasMore && (
-              <div className="text-center mt-8">
+              <div className="text-center mt-8 mb-4">
                 <button
                   onClick={loadMore}
                   className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold px-8 py-3 rounded-full hover:opacity-90 shadow-lg"

@@ -71,7 +71,7 @@ const BottomCTAs = ({ onShareClick }) => {
             onClick={() => setShowCard(true)}
             className="mt-3 border-2 border-purple-400 text-purple-600 font-bold text-sm px-4 py-2 rounded-full hover:bg-purple-50 transition-all w-fit relative z-10"
           >
-            VIEW EXAMPLE
+            SEE YOUR MEMORY
           </button>
         </div>
 

@@ -21,7 +21,7 @@ const TextExpandable = ({ text, maxLength = 30 }) => {
   );
 };
 
-const ViewPopup = ({ memory, onClose, onApprove, onReject, onDelete, onMoveToPending, isApproved }) => {
+const ViewPopup = ({ memory, onClose, onApprove, onReject, onDelete, onMoveToPending, isApproved, activeTab }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
@@ -60,16 +60,23 @@ const ViewPopup = ({ memory, onClose, onApprove, onReject, onDelete, onMoveToPen
         </div>
 
         <div className="flex gap-3 flex-wrap">
-          {!isApproved && (
+          {activeTab === "pending" && (
             <>
               <button onClick={() => { onApprove(memory.id); onClose(); }} className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600"><CheckCircle size={16} /> Approve</button>
               <button onClick={() => { onReject(memory.id); onClose(); }} className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600"><XCircle size={16} /> Reject</button>
             </>
           )}
-          {isApproved && (
+          {activeTab === "approved" && (
             <>
               <button onClick={() => { onMoveToPending(memory.id); onClose(); }} className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 text-white font-bold py-3 rounded-xl hover:bg-yellow-600"><RotateCcw size={16} /> Move to Pending</button>
               <button onClick={() => { onDelete(memory.id); onClose(); }} className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600"><Trash2 size={16} /> Delete</button>
+            </>
+          )}
+          {activeTab === "rejected" && (
+            <>
+              <button onClick={() => { onMoveToPending(memory.id); onClose(); }} className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 text-white font-bold py-3 rounded-xl hover:bg-yellow-600"><RotateCcw size={16} /> Move to Pending</button>
+              <button onClick={() => { onApprove(memory.id); onClose(); }} className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600"><CheckCircle size={16} /> Move to Approved</button>
+              <button onClick={() => { onDelete(memory.id); onClose(); }} className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600"><Trash2 size={16} /> Permanent Delete</button>
             </>
           )}
         </div>
@@ -85,7 +92,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("pending");
   const [selectedMemory, setSelectedMemory] = useState(null);
-  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0 });
+  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
   const [selectedIds, setSelectedIds] = useState([]);
@@ -120,13 +127,29 @@ const AdminDashboard = () => {
     finally { setLoading(false); }
   };
 
+  const fetchRejected = async () => {
+    setLoading(true);
+    try {
+      const res = await fetchWithNgrok(`${API_URL}/api/admin/memories/rejected`);
+      const data = await res.json();
+      if (data.success) setMemories(data.memories);
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
+  };
+
   const fetchStats = async () => {
     try {
-      const [p, a] = await Promise.all([
+      const [p, a, r] = await Promise.all([
         fetchWithNgrok(`${API_URL}/api/admin/memories/pending`).then(r => r.json()),
         fetchWithNgrok(`${API_URL}/api/admin/memories/approved`).then(r => r.json()),
+        fetchWithNgrok(`${API_URL}/api/admin/memories/rejected`).then(r => r.json()),
       ]);
-      setStats({ total: (p.memories?.length || 0) + (a.memories?.length || 0), pending: p.memories?.length || 0, approved: a.memories?.length || 0 });
+      setStats({
+        total: (p.memories?.length || 0) + (a.memories?.length || 0) + (r.memories?.length || 0),
+        pending: p.memories?.length || 0,
+        approved: a.memories?.length || 0,
+        rejected: r.memories?.length || 0,
+      });
     } catch (err) { console.error(err); }
   };
 
@@ -167,6 +190,15 @@ const AdminDashboard = () => {
     } catch (err) { console.error(err); }
   };
 
+  const handlePermanentDelete = async (id) => {
+    if (!window.confirm("Permanently delete this memory? This cannot be undone!")) return;
+    try {
+      await fetchWithNgrok(`${API_URL}/api/admin/memories/${id}/permanent-delete`, { method: "DELETE" });
+      setMemories(memories.filter(m => m.id !== id));
+      fetchStats();
+    } catch (err) { console.error(err); }
+  };
+
   const handleMoveToPending = async (id) => {
     try {
       await fetchWithNgrok(`${API_URL}/api/admin/memories/${id}/pending`, { method: "PATCH" });
@@ -179,8 +211,10 @@ const AdminDashboard = () => {
     setActiveTab(tab);
     setCurrentPage(1);
     setApprovedFilter("all");
+    setSelectedIds([]);
     if (tab === "pending") fetchPending();
-    else fetchApproved();
+    else if (tab === "approved") fetchApproved();
+    else if (tab === "rejected") fetchRejected();
   };
 
   const getFilteredMemories = () => {
@@ -240,6 +274,36 @@ const AdminDashboard = () => {
     } catch (err) { console.error(err); }
   };
 
+  const handleBulkMoveToPending = async () => {
+    if (!window.confirm(`Move ${selectedIds.length} memories to Pending?`)) return;
+    try {
+      await Promise.all(selectedIds.map(id => fetchWithNgrok(`${API_URL}/api/admin/memories/${id}/pending`, { method: "PATCH" })));
+      setMemories(memories.filter(m => !selectedIds.includes(m.id)));
+      setSelectedIds([]);
+      fetchStats();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleBulkMoveToApproved = async () => {
+    if (!window.confirm(`Move ${selectedIds.length} memories to Approved?`)) return;
+    try {
+      await Promise.all(selectedIds.map(id => fetchWithNgrok(`${API_URL}/api/admin/memories/${id}/approve`, { method: "PATCH" })));
+      setMemories(memories.filter(m => !selectedIds.includes(m.id)));
+      setSelectedIds([]);
+      fetchStats();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleBulkPermanentDelete = async () => {
+    if (!window.confirm(`Permanently delete ${selectedIds.length} memories?`)) return;
+    try {
+      await Promise.all(selectedIds.map(id => fetchWithNgrok(`${API_URL}/api/admin/memories/${id}/permanent-delete`, { method: "DELETE" })));
+      setMemories(memories.filter(m => !selectedIds.includes(m.id)));
+      setSelectedIds([]);
+      fetchStats();
+    } catch (err) { console.error(err); }
+  };
+
   const handleExportCSV = () => {
     const headers = ["Name", "Email", "Mobile", "City", "State", "Story Title", "Description", "Year", "Category", "Likes", "Shares", "Images", "Videos", "Created At"];
     const rows = memories.map(m => [
@@ -257,10 +321,7 @@ const AdminDashboard = () => {
     link.click();
   };
 
-  // Col spans based on filter
   const hasExtraCol = approvedFilter !== "all";
-  // all: Name(2)+Email(2)+Mobile(1)+Location(1)+Category(1)+Title(2)+Desc(2)+Actions(1) = 12
-  // filter: Name(2)+Email(2)+Mobile(1)+Location(1)+Category(1)+Extra(1)+Title(2)+Desc(1)+Actions(1) = 12
 
   if (!isLoggedIn) {
     return (
@@ -298,11 +359,12 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div className="px-4 sm:px-8 py-6 grid grid-cols-3 gap-3 sm:gap-4">
+      <div className="px-4 sm:px-8 py-6 grid grid-cols-4 gap-3 sm:gap-4">
         {[
           { icon: <Users size={20} />, value: stats.total, label: "Total", color: "purple" },
           { icon: <Hourglass size={20} />, value: stats.pending, label: "Pending", color: "yellow" },
           { icon: <ThumbsUp size={20} />, value: stats.approved, label: "Approved", color: "green" },
+          { icon: <XCircle size={20} />, value: stats.rejected, label: "Rejected", color: "red" },
         ].map(({ icon, value, label, color }) => (
           <div key={label} className={`bg-white rounded-2xl p-3 sm:p-5 shadow-sm flex items-center gap-2 sm:gap-4 border border-${color}-100`}>
             <div className={`w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-${color}-100 flex items-center justify-center text-${color}-500 flex-shrink-0`}>{icon}</div>
@@ -316,39 +378,33 @@ const AdminDashboard = () => {
 
       {/* Tabs + Filters + Export */}
       <div className="px-4 sm:px-8 flex items-center justify-between mb-4 flex-wrap gap-3">
-        
-        {/* Tabs */}
         <div className="flex gap-3">
-          {["pending", "approved"].map(tab => (
-            <button key={tab} onClick={() => handleTabChange(tab)} className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm ${activeTab === tab ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md" : "bg-white text-gray-500 hover:bg-purple-50 border border-gray-200"}`}>
-              {tab === "pending" ? <Clock size={15} /> : <CheckCircle size={15} />}
+          {["pending", "approved", "rejected"].map(tab => (
+            <button key={tab} onClick={() => handleTabChange(tab)}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm ${activeTab === tab ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md" : "bg-white text-gray-500 hover:bg-purple-50 border border-gray-200"}`}>
+              {tab === "pending" ? <Clock size={15} /> : tab === "approved" ? <CheckCircle size={15} /> : <XCircle size={15} />}
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
               {tab === "pending" && stats.pending > 0 && (
                 <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${activeTab === "pending" ? "bg-white text-purple-600" : "bg-pink-500 text-white"}`}>{stats.pending}</span>
+              )}
+              {tab === "rejected" && stats.rejected > 0 && (
+                <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${activeTab === "rejected" ? "bg-white text-purple-600" : "bg-red-500 text-white"}`}>{stats.rejected}</span>
               )}
             </button>
           ))}
         </div>
 
-        {/* Right filters */}
         <div className="flex items-center gap-2 flex-wrap">
-
           {activeTab === "approved" && (
             <>
-              {/* All / Most Liked / Most Shared */}
               {["all", "liked", "shared"].map(f => (
-                <button
-                  key={f}
-                  onClick={() => { setApprovedFilter(f); setCurrentPage(1); }}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${approvedFilter === f ? "bg-purple-600 text-white" : "bg-white border border-gray-200 text-gray-500 hover:bg-purple-50"}`}
-                >
+                <button key={f} onClick={() => { setApprovedFilter(f); setCurrentPage(1); }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${approvedFilter === f ? "bg-purple-600 text-white" : "bg-white border border-gray-200 text-gray-500 hover:bg-purple-50"}`}>
                   {f === "liked" && <Heart size={13} />}
                   {f === "shared" && <Share2 size={13} />}
                   {f === "all" ? "All" : f === "liked" ? "Most Liked" : "Most Shared"}
                 </button>
               ))}
-
-              {/* Time Filter */}
               {approvedFilter !== "all" && (
                 <div ref={timeFilterRef} className="relative">
                   <button onClick={() => setTimeFilterOpen(!timeFilterOpen)} className="flex items-center gap-2 bg-white border border-gray-200 text-purple-600 font-semibold text-sm px-3 py-1.5 rounded-full hover:bg-purple-50">
@@ -358,7 +414,8 @@ const AdminDashboard = () => {
                   {timeFilterOpen && (
                     <div className="absolute top-10 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 min-w-40 py-2">
                       {[{ label: "Today", value: "today" }, { label: "Yesterday", value: "yesterday" }, { label: "This Week", value: "week" }, { label: "This Month", value: "month" }, { label: "Custom Date", value: "custom" }].map(opt => (
-                        <button key={opt.value} onClick={() => { setApprovedTimePeriod(opt.value); setTimeFilterOpen(false); }} className={`w-full text-left px-4 py-2 text-sm hover:bg-purple-50 ${approvedTimePeriod === opt.value ? "text-purple-600 font-bold bg-purple-50" : "text-gray-600"}`}>
+                        <button key={opt.value} onClick={() => { setApprovedTimePeriod(opt.value); setTimeFilterOpen(false); }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-purple-50 ${approvedTimePeriod === opt.value ? "text-purple-600 font-bold bg-purple-50" : "text-gray-600"}`}>
                           {opt.label}
                         </button>
                       ))}
@@ -366,8 +423,6 @@ const AdminDashboard = () => {
                   )}
                 </div>
               )}
-
-              {/* Custom dates */}
               {approvedFilter !== "all" && approvedTimePeriod === "custom" && (
                 <div className="flex items-center gap-2">
                   <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm outline-none focus:border-purple-400" />
@@ -377,8 +432,6 @@ const AdminDashboard = () => {
               )}
             </>
           )}
-
-          {/* Export CSV */}
           {activeTab === "approved" && memories.length > 0 && (
             <button onClick={handleExportCSV} className="flex items-center gap-2 bg-purple-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-purple-700">
               <Download size={15} /> Export CSV
@@ -387,14 +440,27 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Bulk Action Bar */}
+      {/* Bulk Action Bars */}
       {activeTab === "pending" && selectedIds.length > 0 && (
         <div className="px-4 sm:px-8 mb-4">
           <div className="bg-purple-100 border border-purple-200 rounded-xl px-4 py-3 flex items-center justify-between flex-wrap gap-2">
             <p className="text-sm font-semibold text-purple-700">{selectedIds.length} selected</p>
             <div className="flex gap-2">
-              <button onClick={handleBulkApprove} className="flex items-center gap-1 bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-green-600"><CheckCircle size={14} /> Approve Selected</button>
-              <button onClick={handleBulkReject} className="flex items-center gap-1 bg-red-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-red-600"><XCircle size={14} /> Reject Selected</button>
+              <button onClick={handleBulkApprove} className="flex items-center gap-1 bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-green-600"><CheckCircle size={14} /> Approve</button>
+              <button onClick={handleBulkReject} className="flex items-center gap-1 bg-red-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-red-600"><XCircle size={14} /> Reject</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "rejected" && selectedIds.length > 0 && (
+        <div className="px-4 sm:px-8 mb-4">
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+            <p className="text-sm font-semibold text-red-700">{selectedIds.length} selected</p>
+            <div className="flex gap-2 flex-wrap">
+              <button onClick={handleBulkMoveToPending} className="flex items-center gap-1 bg-yellow-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-yellow-600"><RotateCcw size={14} /> Move to Pending</button>
+              <button onClick={handleBulkMoveToApproved} className="flex items-center gap-1 bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-green-600"><CheckCircle size={14} /> Move to Approved</button>
+              <button onClick={handleBulkPermanentDelete} className="flex items-center gap-1 bg-red-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-red-600"><Trash2 size={14} /> Permanent Delete</button>
             </div>
           </div>
         </div>
@@ -406,7 +472,9 @@ const AdminDashboard = () => {
           <div className="text-center py-20"><p className="text-gray-400">Loading...</p></div>
         ) : memories.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <p className="text-gray-400 font-semibold">{activeTab === "pending" ? "No pending submissions!" : "No approved memories yet!"}</p>
+            <p className="text-gray-400 font-semibold">
+              {activeTab === "pending" ? "No pending submissions!" : activeTab === "approved" ? "No approved memories yet!" : "No rejected memories!"}
+            </p>
           </div>
         ) : (() => {
           const filteredMems = getFilteredMemories();
@@ -419,7 +487,7 @@ const AdminDashboard = () => {
               {/* Desktop Header */}
               <div className="hidden sm:grid grid-cols-12 gap-2 px-6 py-3 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100 text-xs font-black text-purple-600 uppercase tracking-wide items-center">
                 <div className="col-span-2 flex items-center gap-2">
-                  {activeTab === "pending" && (
+                  {(activeTab === "pending" || activeTab === "rejected") && (
                     <input type="checkbox" checked={selectedIds.length > 0 && selectedIds.length === paginatedMemories.length} onChange={() => toggleSelectAll(paginatedMemories.map(m => m.id))} className="w-3.5 h-3.5 cursor-pointer" />
                   )}
                   <span>Name</span>
@@ -427,8 +495,7 @@ const AdminDashboard = () => {
                 <div className="col-span-2">Email</div>
                 <div className="col-span-1">Mobile</div>
                 <div className="col-span-1">Location</div>
-                <div className="col-span-1">Category</div>
-                {approvedFilter === "liked" && <div className="col-span-1 flex items-center gap-1 text-purple-500"><Heart size={13} className="fill-red-500" /> Likes</div>}
+                {approvedFilter === "liked" && <div className="col-span-1 flex items-center gap-1 text-red-500"><Heart size={13} className="fill-red-500" /> Likes</div>}
                 {approvedFilter === "shared" && <div className="col-span-1 flex items-center gap-1 text-purple-500"><Share2 size={13} /> Shares</div>}
                 <div className={hasExtraCol ? "col-span-2" : "col-span-2"}>Title</div>
                 <div className={hasExtraCol ? "col-span-1" : "col-span-2"}>Description</div>
@@ -448,7 +515,7 @@ const AdminDashboard = () => {
                   {/* Desktop Row */}
                   <div className="hidden sm:grid grid-cols-12 gap-2 px-6 py-4 items-center text-sm">
                     <div className="col-span-2 flex items-center gap-2">
-                      {activeTab === "pending" && (
+                      {(activeTab === "pending" || activeTab === "rejected") && (
                         <input type="checkbox" checked={selectedIds.includes(memory.id)} onChange={() => toggleSelect(memory.id)} className="w-3.5 h-3.5 cursor-pointer flex-shrink-0" />
                       )}
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{memory.name?.charAt(0)}</div>
@@ -457,9 +524,6 @@ const AdminDashboard = () => {
                     <div className="col-span-2 text-gray-500 truncate text-xs">{memory.email}</div>
                     <div className="col-span-1 text-gray-500 truncate text-xs">+60 {memory.mobile}</div>
                     <div className="col-span-1 text-gray-500 truncate text-xs">{memory.city}</div>
-                    <div className="col-span-1">
-                      <span className="bg-purple-100 text-purple-600 text-xs font-bold px-2 py-1 rounded-full truncate block">{memory.category?.split(" ")[0]}</span>
-                    </div>
                     {approvedFilter === "liked" && (
                       <div className="col-span-1">
                         <span className="bg-red-100 text-red-500 text-xs font-black px-2 py-1 rounded-full flex items-center gap-1 w-fit">
@@ -493,6 +557,13 @@ const AdminDashboard = () => {
                           <button onClick={() => handleDelete(memory.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600" title="Delete"><Trash2 size={13} /></button>
                         </>
                       )}
+                      {activeTab === "rejected" && (
+                        <>
+                          <button onClick={() => handleMoveToPending(memory.id)} className="p-1.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600" title="Move to Pending"><RotateCcw size={13} /></button>
+                          <button onClick={() => handleApprove(memory.id)} className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600" title="Move to Approved"><CheckCircle size={13} /></button>
+                          <button onClick={() => handlePermanentDelete(memory.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600" title="Permanent Delete"><Trash2 size={13} /></button>
+                        </>
+                      )}
                       <button onClick={() => setSelectedMemory(memory)} className="p-1.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600" title="View"><Eye size={13} /></button>
                     </div>
                   </div>
@@ -500,7 +571,7 @@ const AdminDashboard = () => {
                   {/* Mobile Row */}
                   <div className="sm:hidden flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-2">
-                      {activeTab === "pending" && (
+                      {(activeTab === "pending" || activeTab === "rejected") && (
                         <input type="checkbox" checked={selectedIds.includes(memory.id)} onChange={() => toggleSelect(memory.id)} className="w-3.5 h-3.5 cursor-pointer" />
                       )}
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">{memory.name?.charAt(0)}</div>
@@ -517,6 +588,13 @@ const AdminDashboard = () => {
                         <>
                           <button onClick={() => handleMoveToPending(memory.id)} className="p-1.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"><RotateCcw size={14} /></button>
                           <button onClick={() => handleDelete(memory.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600"><Trash2 size={14} /></button>
+                        </>
+                      )}
+                      {activeTab === "rejected" && (
+                        <>
+                          <button onClick={() => handleMoveToPending(memory.id)} className="p-1.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"><RotateCcw size={14} /></button>
+                          <button onClick={() => handleApprove(memory.id)} className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600"><CheckCircle size={14} /></button>
+                          <button onClick={() => handlePermanentDelete(memory.id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600"><Trash2 size={14} /></button>
                         </>
                       )}
                       <button onClick={() => setSelectedMemory(memory)} className="p-1.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600"><Eye size={14} /></button>
@@ -553,9 +631,10 @@ const AdminDashboard = () => {
           onClose={() => setSelectedMemory(null)}
           onApprove={handleApprove}
           onReject={handleReject}
-          onDelete={handleDelete}
+          onDelete={handlePermanentDelete}
           onMoveToPending={handleMoveToPending}
           isApproved={activeTab === "approved"}
+          activeTab={activeTab}
         />
       )}
     </div>
