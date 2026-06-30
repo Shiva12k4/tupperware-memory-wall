@@ -18,18 +18,7 @@ const BottomCTAs = ({ onShareClick }) => {
 
   return (
     <>
-    {/* Video Section */}
-<div className="px-6 pt-6">
-  <video
-    src="/video.mp4"
-    className="w-full rounded-2xl shadow-md"
-    controls
-    autoPlay
-    muted
-    loop
-    playsInline
-  />
-</div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-6">
          {/* 4 — Daily Winner */}
 <div className="bg-yellow-50 rounded-2xl p-5 shadow-md flex flex-col justify-between border border-yellow-100 min-h-36">
