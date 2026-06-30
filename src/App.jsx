@@ -190,7 +190,7 @@ const App = () => {
 {/* Video Section */}
 <div className="px-6 pb-6 sm:py-6">
   <video
-    src="/promo-video.mp4"
+    src="/video.mp4"
     className="w-full rounded-2xl shadow-md h-48 sm:h-64 md:h-80 object-cover"
     controls
     autoPlay
