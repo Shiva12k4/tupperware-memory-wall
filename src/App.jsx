@@ -133,7 +133,7 @@ const App = () => {
   </div>
 </div>
 {/* Promo Banner Image */}
-<div className="w-full overflow-hidden">
+<div className="w-full overflow-hidden cursor-pointer" onClick={() => setShowModal(true)}>
   <img
     src="/evedesk.jpeg"
     alt="Tupperware Promotion"

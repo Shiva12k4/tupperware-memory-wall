@@ -4,80 +4,191 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import imageCompression from "browser-image-compression";
 import { X } from "lucide-react";
 
-
 const TCModal = ({ onClose }) => (
   <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] px-4">
-    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col" style={{ maxHeight: "80vh" }}>
-
+    <div
+      className="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col"
+      style={{ maxHeight: "80vh" }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-        <h2 className="text-lg font-black text-purple-700">Terms & Conditions</h2>
-        <button onClick={onClose} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
+        <h2 className="text-lg font-black text-purple-700">
+          Terms & Conditions
+        </h2>
+        <button
+          onClick={onClose}
+          className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+        >
           <X size={16} className="text-gray-600" />
         </button>
       </div>
 
       {/* Scrollable Content */}
       <div className="overflow-y-auto px-6 py-4 flex-1 text-sm text-gray-600 leading-relaxed">
-        <p className="italic mb-4">These Terms & Conditions ("Terms") govern participation in the Tupperware Digital Heritage Wall (the "Campaign"). By submitting any content to the Campaign, you confirm that you have read, understood, and agree to be bound by these Terms.</p>
+        <p className="italic mb-4">
+          These Terms & Conditions ("Terms") govern participation in the
+          Tupperware Digital Heritage Wall (the "Campaign"). By submitting any
+          content to the Campaign, you confirm that you have read, understood,
+          and agree to be bound by these Terms.
+        </p>
 
         <h3 className="text-purple-700 font-bold mb-1">1. Organiser</h3>
-        <p className="mb-3">The Campaign is organised by Tupperware Brands Malaysia Sdn. Bhd. (Company No. 199401001646) of Unit 12-1, Level 12, Tower 2A UOA Business Park No.1, Jalan Pengaturcara U1/51a, Seksyen U1 40150 Shah Alam, Selangor ("Tupperware" or the "Organiser").</p>
+        <p className="mb-3">
+          The Campaign is organised by Tupperware Brands Malaysia Sdn. Bhd.
+          (Company No. 199401001646) of Unit 12-1, Level 12, Tower 2A UOA
+          Business Park No.1, Jalan Pengaturcara U1/51a, Seksyen U1 40150 Shah
+          Alam, Selangor ("Tupperware" or the "Organiser").
+        </p>
 
         <h3 className="text-purple-700 font-bold mb-1">2. Eligibility</h3>
-        <p className="mb-3">Participation is open to residents of Malaysia aged eighteen (18) years and above at the time of submission. Submissions from or on behalf of individuals under the age of eighteen (18) will not be accepted.</p>
+        <p className="mb-3">
+          Participation is open to residents of Malaysia aged eighteen (18)
+          years and above at the time of submission. Submissions from or on
+          behalf of individuals under the age of eighteen (18) will not be
+          accepted.
+        </p>
 
-        <h3 className="text-purple-700 font-bold mb-1">3. Participation and Submissions</h3>
-        <p className="mb-3">By uploading, posting, or otherwise submitting any message, photograph, video, audio recording, artwork, testimonial, or other material to the Digital Heritage Wall, the participant agrees to be bound by these Terms.</p>
+        <h3 className="text-purple-700 font-bold mb-1">
+          3. Participation and Submissions
+        </h3>
+        <p className="mb-3">
+          By uploading, posting, or otherwise submitting any message,
+          photograph, video, audio recording, artwork, testimonial, or other
+          material to the Digital Heritage Wall, the participant agrees to be
+          bound by these Terms.
+        </p>
 
-        <h3 className="text-purple-700 font-bold mb-1">4. Content Guidelines and Moderation</h3>
-        <p className="mb-1">Participants represent and undertake that their Submission:</p>
+        <h3 className="text-purple-700 font-bold mb-1">
+          4. Content Guidelines and Moderation
+        </h3>
+        <p className="mb-1">
+          Participants represent and undertake that their Submission:
+        </p>
         <ul className="list-disc pl-5 mb-3 space-y-1">
-          <li>is original work created by the participant, or that the participant holds all rights necessary to submit it;</li>
-          <li>does not infringe any third-party intellectual property, privacy, or other rights;</li>
-          <li>does not contain defamatory, obscene, threatening, harassing, or discriminatory material;</li>
-          <li>does not contain personal data of any other identifiable individual without prior written consent;</li>
-          <li>does not contain any commercial advertising or promotion of third-party brands;</li>
+          <li>
+            is original work created by the participant, or that the participant
+            holds all rights necessary to submit it;
+          </li>
+          <li>
+            does not infringe any third-party intellectual property, privacy, or
+            other rights;
+          </li>
+          <li>
+            does not contain defamatory, obscene, threatening, harassing, or
+            discriminatory material;
+          </li>
+          <li>
+            does not contain personal data of any other identifiable individual
+            without prior written consent;
+          </li>
+          <li>
+            does not contain any commercial advertising or promotion of
+            third-party brands;
+          </li>
           <li>complies with all applicable laws of Malaysia.</li>
         </ul>
 
         <h3 className="text-purple-700 font-bold mb-1">5. Grant of Rights</h3>
-        <p className="mb-3">By submitting a Submission, the participant grants to the Organiser a perpetual, irrevocable, worldwide, royalty-free, non-exclusive licence to use, reproduce, publish, display, distribute, and otherwise communicate the Submission in any media for any purpose connected with the Organiser's business.</p>
+        <p className="mb-3">
+          By submitting a Submission, the participant grants to the Organiser a
+          perpetual, irrevocable, worldwide, royalty-free, non-exclusive licence
+          to use, reproduce, publish, display, distribute, and otherwise
+          communicate the Submission in any media for any purpose connected with
+          the Organiser's business.
+        </p>
 
-        <h3 className="text-purple-700 font-bold mb-1">6. Consent to Use of Name and Likeness</h3>
-        <p className="mb-3">The participant acknowledges that their name, likeness, image, and biographical information may be displayed publicly on the Digital Heritage Wall, websites, social media platforms, and marketing materials, without further notice or compensation.</p>
+        <h3 className="text-purple-700 font-bold mb-1">
+          6. Consent to Use of Name and Likeness
+        </h3>
+        <p className="mb-3">
+          The participant acknowledges that their name, likeness, image, and
+          biographical information may be displayed publicly on the Digital
+          Heritage Wall, websites, social media platforms, and marketing
+          materials, without further notice or compensation.
+        </p>
 
-        <h3 className="text-purple-700 font-bold mb-1">7. Personal Data Protection</h3>
-        <p className="mb-3">The Organiser processes personal data in accordance with the Personal Data Protection Act 2010 (PDPA). By submitting, the participant consents to collection and use of their personal data for administration of the Campaign, public display of Submissions, marketing communications, and disclosure to affiliates and service providers. Privacy Notice: <a href="https://shop.tupperwarebrands.com.my/pages/privacy-policy?ref=1508168" target="_blank" className="text-purple-600 underline">View Privacy Policy</a></p>
+        <h3 className="text-purple-700 font-bold mb-1">
+          7. Personal Data Protection
+        </h3>
+        <p className="mb-3">
+          The Organiser processes personal data in accordance with the Personal
+          Data Protection Act 2010 (PDPA). By submitting, the participant
+          consents to collection and use of their personal data for
+          administration of the Campaign, public display of Submissions,
+          marketing communications, and disclosure to affiliates and service
+          providers. Privacy Notice:{" "}
+          <a
+            href="https://shop.tupperwarebrands.com.my/pages/privacy-policy?ref=1508168"
+            target="_blank"
+            className="text-purple-600 underline"
+          >
+            View Privacy Policy
+          </a>
+        </p>
 
-        <h3 className="text-purple-700 font-bold mb-1">8. Retention and Archival Use</h3>
-        <p className="mb-3">Submissions and associated personal data may be retained indefinitely by the Organiser as part of its brand heritage archive.</p>
+        <h3 className="text-purple-700 font-bold mb-1">
+          8. Retention and Archival Use
+        </h3>
+        <p className="mb-3">
+          Submissions and associated personal data may be retained indefinitely
+          by the Organiser as part of its brand heritage archive.
+        </p>
 
-        <h3 className="text-purple-700 font-bold mb-1">9. Participant Warranties</h3>
-        <p className="mb-3">The participant warrants that they own or have secured all rights necessary to make the Submission, every individual identifiable in the Submission has consented, and the Submission complies with all applicable laws.</p>
+        <h3 className="text-purple-700 font-bold mb-1">
+          9. Participant Warranties
+        </h3>
+        <p className="mb-3">
+          The participant warrants that they own or have secured all rights
+          necessary to make the Submission, every individual identifiable in the
+          Submission has consented, and the Submission complies with all
+          applicable laws.
+        </p>
 
-        <h3 className="text-purple-700 font-bold mb-1">10. Limitation of Liability</h3>
-        <p className="mb-3">To the maximum extent permitted by Malaysian law, the Organiser shall not be liable for any loss, damage, or expense arising out of or in connection with the Campaign.</p>
+        <h3 className="text-purple-700 font-bold mb-1">
+          10. Limitation of Liability
+        </h3>
+        <p className="mb-3">
+          To the maximum extent permitted by Malaysian law, the Organiser shall
+          not be liable for any loss, damage, or expense arising out of or in
+          connection with the Campaign.
+        </p>
 
-        <h3 className="text-purple-700 font-bold mb-1">11. Modification and Termination</h3>
-        <p className="mb-3">The Organiser reserves the right to amend these Terms or terminate the Campaign at any time. The licence granted shall survive any such termination.</p>
+        <h3 className="text-purple-700 font-bold mb-1">
+          11. Modification and Termination
+        </h3>
+        <p className="mb-3">
+          The Organiser reserves the right to amend these Terms or terminate the
+          Campaign at any time. The licence granted shall survive any such
+          termination.
+        </p>
 
         <h3 className="text-purple-700 font-bold mb-1">12. Governing Law</h3>
-        <p className="mb-3">These Terms shall be governed by the laws of Malaysia. The participant submits to the exclusive jurisdiction of the courts of Malaysia.</p>
+        <p className="mb-3">
+          These Terms shall be governed by the laws of Malaysia. The participant
+          submits to the exclusive jurisdiction of the courts of Malaysia.
+        </p>
 
         <h3 className="text-purple-700 font-bold mb-1">13. General</h3>
-        <p className="mb-3">If any provision is found invalid, the remaining provisions shall continue in full force. These Terms constitute the entire agreement between the Organiser and the participant.</p>
+        <p className="mb-3">
+          If any provision is found invalid, the remaining provisions shall
+          continue in full force. These Terms constitute the entire agreement
+          between the Organiser and the participant.
+        </p>
 
-        <p className="text-gray-400 text-xs mt-2">For queries, please contact the Organiser at [contact email].</p>
+        <p className="text-gray-400 text-xs mt-2">
+          For queries, please contact the Organiser at [contact email].
+        </p>
       </div>
 
       {/* Footer */}
       <div className="px-6 py-4 border-t border-gray-100 flex-shrink-0">
-        <button onClick={onClose} className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 rounded-xl hover:opacity-90">
+        <button
+          onClick={onClose}
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 rounded-xl hover:opacity-90"
+        >
           I Understand
         </button>
       </div>
-
     </div>
   </div>
 );
@@ -203,10 +314,10 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
     const newErrors = {};
     if (!formData.name) newErrors.name = "Name is required";
     if (!formData.email) {
-  newErrors.email = "Email is required";
-} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-  newErrors.email = "Please enter a valid email address";
-}
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
     if (!formData.mobile) {
       newErrors.mobile = "Mobile is required";
     } else if (formData.mobile.length < 9 || formData.mobile.length > 12) {
@@ -256,7 +367,7 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
       }
     }
     if (images.length === 0) {
-      alert("Please upload at least one photo!");
+      setErrors({ ...errors, images: "Please upload at least one photo!" });
       return;
     }
 
@@ -611,6 +722,9 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
                     onChange={handleImages}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-purple-400"
                   />
+                  {errors.images && (
+                    <p className="text-red-400 text-xs mt-1">{errors.images}</p>
+                  )}
 
                   {/* Drag & Drop Preview */}
                   {images.length > 0 && (
@@ -709,26 +823,25 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
                 {/* Consents */}
                 <div className="flex flex-col gap-3 mt-2">
                   <label className="flex items-start gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="terms_accepted"
-                        checked={formData.terms_accepted}
-                        onChange={handleChange}
-                        className="mt-1"
-                      />
-                      <span className="text-xs text-gray-600">
-                        I accept the{" "}
-                        <button
-                          type="button"
-                          onClick={() => setShowTC(true)}
-                          className="text-purple-600 underline cursor-pointer font-bold hover:text-purple-800"
-                        >
-                          Terms & Conditions
-                        </button>{" "}
-                        *
-                      </span>
-                    </label>
-                  
+                    <input
+                      type="checkbox"
+                      name="terms_accepted"
+                      checked={formData.terms_accepted}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <span className="text-xs text-gray-600">
+                      I accept the{" "}
+                      <button
+                        type="button"
+                        onClick={() => setShowTC(true)}
+                        className="text-purple-600 underline cursor-pointer font-bold hover:text-purple-800"
+                      >
+                        Terms & Conditions
+                      </button>{" "}
+                      *
+                    </span>
+                  </label>
 
                   <label className="flex items-start gap-2 cursor-pointer">
                     <input
