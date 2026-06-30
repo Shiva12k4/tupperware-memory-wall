@@ -187,18 +187,17 @@ const App = () => {
                 </div>
                 <BottomCTAs onShareClick={() => setShowModal(true)} />
                 {/* Video Section */}
-                {/* Video Section */}
-                <div className="px-6 pt-6">
-                  <video
-                    src="/video.mp4"
-                    className="w-full rounded-2xl shadow-md"
-                    controls
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                  />
-                </div>
+<div className="px-6 py-6">
+  <video
+    src="/promo-video.mp4"
+    className="w-full rounded-2xl shadow-md h-48 sm:h-64 md:h-80 object-cover"
+    controls
+    autoPlay
+    muted
+    loop
+    playsInline
+  />
+</div>
               </div>
 
               {showModal && (
