@@ -348,16 +348,16 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.terms_accepted) {
-      alert("Please accept Terms & Conditions!");
-      return;
-    }
-    if (!formData.marketing_consent) {
-      alert("Please accept Marketing Consent!");
-      return;
-    }
-    if (!formData.content_consent) {
-      alert("Please accept Content Usage Consent!");
+    const consentErrors = {};
+    if (!formData.terms_accepted)
+      consentErrors.terms_accepted = "Please accept Terms & Conditions!";
+    if (!formData.marketing_consent)
+      consentErrors.marketing_consent = "Please accept Marketing Consent!";
+    if (!formData.content_consent)
+      consentErrors.content_consent = "Please accept Content Usage Consent!";
+
+    if (Object.keys(consentErrors).length > 0) {
+      setErrors({ ...errors, ...consentErrors });
       return;
     }
     for (const video of videos) {
@@ -822,53 +822,74 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
 
                 {/* Consents */}
                 <div className="flex flex-col gap-3 mt-2">
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="terms_accepted"
-                      checked={formData.terms_accepted}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
-                    <span className="text-xs text-gray-600">
-                      I accept the{" "}
-                      <button
-                        type="button"
-                        onClick={() => setShowTC(true)}
-                        className="text-purple-600 underline cursor-pointer font-bold hover:text-purple-800"
-                      >
-                        Terms & Conditions
-                      </button>{" "}
-                      *
-                    </span>
+                  <label className="flex flex-col gap-1">
+                    <div className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="terms_accepted"
+                        checked={formData.terms_accepted}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span className="text-xs text-gray-600">
+                        I accept the{" "}
+                        <button
+                          type="button"
+                          onClick={() => setShowTC(true)}
+                          className="text-purple-600 underline cursor-pointer font-bold hover:text-purple-800"
+                        >
+                          Terms & Conditions
+                        </button>{" "}
+                        *
+                      </span>
+                    </div>
+                    {errors.terms_accepted && (
+                      <p className="text-red-400 text-xs ml-5">
+                        {errors.terms_accepted}
+                      </p>
+                    )}
                   </label>
 
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="marketing_consent"
-                      checked={formData.marketing_consent}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
-                    <span className="text-xs text-gray-600">
-                      I agree to receive marketing communications from
-                      Tupperware Malaysia
-                    </span>
+                  <label className="flex flex-col gap-1">
+                    <div className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="marketing_consent"
+                        checked={formData.marketing_consent}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span className="text-xs text-gray-600">
+                        I agree to receive marketing communications from
+                        Tupperware Malaysia
+                      </span>
+                    </div>
+                    {errors.marketing_consent && (
+                      <p className="text-red-400 text-xs ml-5">
+                        {errors.marketing_consent}
+                      </p>
+                    )}
                   </label>
 
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="content_consent"
-                      checked={formData.content_consent}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
-                    <span className="text-xs text-gray-600">
-                      I consent to Tupperware Malaysia using my submitted
-                      content for promotional purposes *
-                    </span>
+                  <label className="flex flex-col gap-1">
+                    <div className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="content_consent"
+                        checked={formData.content_consent}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span className="text-xs text-gray-600">
+                        I consent to Tupperware Malaysia using my submitted
+                        content for promotional purposes *
+                      </span>
+                    </div>
+                    {errors.content_consent && (
+                      <p className="text-red-400 text-xs ml-5">
+                        {errors.content_consent}
+                      </p>
+                    )}
                   </label>
                 </div>
 
