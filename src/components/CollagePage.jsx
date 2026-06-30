@@ -56,7 +56,7 @@ const CollagePage = () => {
         {/* Title */}
         <div className="flex-1 text-center relative z-10">
           <h1 className="text-xl sm:text-3xl font-black text-purple-800 drop-shadow-sm">
-            Malaysia's Memory Collage
+            Tupperware Memory Wall
           </h1>
           <p className="text-pink-500 text-xs sm:text-sm mt-1 font-semibold">
             Every container holds a memory ♡

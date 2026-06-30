@@ -28,41 +28,62 @@ const MemoryCard = ({ memory }) => {
   };
 
   const handleShare = async (e) => {
-    e.stopPropagation();
-    try {
-      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/share`, {
-        method: "PATCH",
-      });
+  e.stopPropagation();
+  try {
+    await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/share`, { method: "PATCH" });
 
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#fdf2f8",
-      });
+    const imageUrl = memory.images?.[0];
+    let base64Image = null;
 
-      canvas.toBlob(async (blob) => {
-        const file = new File([blob], "tupperware-memory.png", {
-          type: "image/png",
+    if (imageUrl) {
+      try {
+        const response = await fetch(imageUrl, { mode: "cors" });
+        const blob = await response.blob();
+        base64Image = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
         });
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: memory.story_title || memory.name,
-            text: memory.description || memory.caption,
-            files: [file],
-          });
-        } else if (navigator.share) {
-          await navigator.share({
-            title: memory.story_title || memory.name,
-            text: memory.description || memory.caption,
-            url: window.location.href,
-          });
-        }
-      }, "image/png");
-    } catch (err) {
-      console.error(err);
+      } catch (err) {
+        console.error("Image fetch error:", err);
+      }
     }
-  };
+
+    // Temporarily image replace karo
+    const imgEl = cardRef.current?.querySelector("img");
+    const originalSrc = imgEl?.src;
+    if (imgEl && base64Image) imgEl.src = base64Image;
+
+    const canvas = await html2canvas(cardRef.current, {
+      scale: 2,
+      useCORS: false,
+      allowTaint: true,
+      backgroundColor: "#fdf2f8",
+    });
+
+    // Wapas restore karo
+    if (imgEl && originalSrc) imgEl.src = originalSrc;
+
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], "tupperware-memory.png", { type: "image/png" });
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: memory.story_title || memory.name,
+          text: memory.description || memory.caption,
+          files: [file],
+        });
+      } else if (navigator.share) {
+        await navigator.share({
+          title: memory.story_title || memory.name,
+          text: memory.description || memory.caption,
+          url: window.location.href,
+        });
+      }
+    }, "image/png");
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
     <>

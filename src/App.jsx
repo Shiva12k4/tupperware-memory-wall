@@ -111,25 +111,25 @@ const App = () => {
             <div className="min-h-screen bg-pink-200 p-4">
               <Header onShareClick={() => setShowModal(true)} />
 
-              {/* Top Banner */}
-            <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white py-10 px-4 flex items-center justify-center gap-2 flex-wrap">
+           {/* Top Banner */}
+<div className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white py-2 sm:py-8 px-4 flex items-center justify-center gap-2 flex-wrap">
   <div className="absolute inset-0 pointer-events-none">
     <div className="animate-shine absolute top-0 h-full w-16 bg-white opacity-20 skew-x-12" />
   </div>
 
   <div className="flex items-center justify-center gap-2 relative z-10 flex-wrap">
-    <span className="font-black text-base sm:text-lg animate-pulse whitespace-nowrap">
-  + Add your memory
-</span>
-<p className="text-base sm:text-lg font-semibold whitespace-nowrap">
-  here and win daily prizes with Tupperware.
-</p>
-<button
-  onClick={() => setShowModal(true)}
-  className="bg-white text-purple-600 font-bold text-sm px-4 py-1.5 rounded-full hover:bg-pink-50 whitespace-nowrap"
->
-  Add Now
-</button>
+    <span className="font-black text-sm sm:text-2xl animate-pulse whitespace-nowrap">
+      + Add your memory
+    </span>
+    <p className="text-sm sm:text-2xl font-semibold whitespace-nowrap">
+      here and win daily prizes with Tupperware.
+    </p>
+    <button
+      onClick={() => setShowModal(true)}
+      className="bg-white text-purple-600 font-bold text-xs sm:text-sm px-3 sm:px-4 py-1 sm:py-1.5 rounded-full hover:bg-pink-50 whitespace-nowrap"
+    >
+      Add Now
+    </button>
   </div>
 </div>
 {/* Promo Banner Image */}

@@ -18,7 +18,39 @@ const BottomCTAs = ({ onShareClick }) => {
 
   return (
     <>
+    {/* Video Section */}
+<div className="px-6 pt-6">
+  <video
+    src="/video.mp4"
+    className="w-full rounded-2xl shadow-md"
+    controls
+    autoPlay
+    muted
+    loop
+    playsInline
+  />
+</div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-6">
+         {/* 4 — Daily Winner */}
+<div className="bg-yellow-50 rounded-2xl p-5 shadow-md flex flex-col justify-between border border-yellow-100 min-h-36">
+  <div>
+    <div className="w-9 h-9 rounded-full bg-yellow-100 flex items-center justify-center mb-3">
+      <Trophy className="text-yellow-500" size={18} />
+    </div>
+    <h3 className="text-purple-700 font-black text-lg leading-tight">
+      Daily Winner
+    </h3>
+    <p className="text-gray-500 text-xs mt-1">
+      Today's most loved Tupperware memory!
+    </p>
+  </div>
+  <button
+    onClick={() => setShowWinner(true)}
+    className="mt-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-white font-bold text-sm px-4 py-2 rounded-full hover:opacity-90 transition-all w-fit flex items-center gap-1"
+  >
+    View Winner <ChevronRight size={14} />
+  </button>
+</div>
         {/* 1 — Share Your Memory */}
         <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 rounded-2xl p-5 flex flex-col justify-between min-h-36 shadow-lg">
           <div>
@@ -136,26 +168,7 @@ const BottomCTAs = ({ onShareClick }) => {
           </button>
         </div> */}
 
-        {/* 4 — Daily Winner */}
-<div className="bg-yellow-50 rounded-2xl p-5 shadow-md flex flex-col justify-between border border-yellow-100 min-h-36">
-  <div>
-    <div className="w-9 h-9 rounded-full bg-yellow-100 flex items-center justify-center mb-3">
-      <Trophy className="text-yellow-500" size={18} />
-    </div>
-    <h3 className="text-purple-700 font-black text-lg leading-tight">
-      Daily Winner
-    </h3>
-    <p className="text-gray-500 text-xs mt-1">
-      Today's most loved Tupperware memory!
-    </p>
-  </div>
-  <button
-    onClick={() => setShowWinner(true)}
-    className="mt-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-white font-bold text-sm px-4 py-2 rounded-full hover:opacity-90 transition-all w-fit flex items-center gap-1"
-  >
-    View Winner <ChevronRight size={14} />
-  </button>
-</div>
+       
       </div>
 
       {/* Memory Card Share Popup */}

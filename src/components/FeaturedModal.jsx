@@ -337,46 +337,52 @@ weekAgo.setHours(0, 0, 0, 0);
   ) : (
     <>
       {/* Weekly Winners Section */}
-      {(weeklyWinners.liked || weeklyWinners.shared) && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-xl bg-yellow-100 flex items-center justify-center">
-              <Trophy size={16} className="text-yellow-500" />
-            </div>
-            <h3 className="text-base font-black text-purple-700">This Week's Winners</h3>
-          </div>
+{(weeklyWinners.liked || weeklyWinners.shared) && (
+  <div className="mb-6">
+    {/* Title — Center */}
+    <div className="flex items-center justify-center gap-2 mb-6">
+      <div className="w-8 h-8 rounded-xl bg-yellow-100 flex items-center justify-center">
+        <Trophy size={16} className="text-yellow-500" />
+      </div>
+      <h3 className="text-xl font-black text-purple-700">This Week's Winners</h3>
+    </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {weeklyWinners.liked && (
-              <div className="relative pt-4">
-                <div className="absolute -top-2 -left-2 z-10 bg-red-500 text-white text-xs font-black px-2 py-1 rounded-full flex items-center gap-1">
-                  <Heart size={10} className="fill-white" /> Most Liked
-                </div>
-                <MemoryCard memory={{
-                  ...weeklyWinners.liked,
-                  yearColor: "bg-pink-400",
-                  caption: weeklyWinners.liked.description,
-                }} />
-              </div>
-            )}
-            {weeklyWinners.shared && (
-              <div className="relative pt-4">
-                <div className="absolute -top-2 -left-2 z-10 bg-purple-500 text-white text-xs font-black px-2 py-1 rounded-full flex items-center gap-1">
-                  <Share2 size={10} /> Most Shared
-                </div>
-                <MemoryCard memory={{
-                  ...weeklyWinners.shared,
-                  yearColor: "bg-purple-400",
-                  caption: weeklyWinners.shared.description,
-                }} />
-              </div>
-            )}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+      {weeklyWinners.liked && (
+        <div className="flex flex-col items-center">
+          {/* Badge — Center top */}
+          <div className="bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full flex items-center gap-1 mb-3">
+            <Heart size={11} className="fill-white" /> Most Liked
           </div>
-
-          <div className="border-t border-purple-100 my-6" />
+          <div className="w-full">
+            <MemoryCard memory={{
+              ...weeklyWinners.liked,
+              yearColor: "bg-pink-400",
+              caption: weeklyWinners.liked.description,
+            }} />
+          </div>
         </div>
       )}
+      {weeklyWinners.shared && (
+        <div className="flex flex-col items-center">
+          {/* Badge — Center top */}
+          <div className="bg-purple-500 text-white text-xs font-black px-3 py-1.5 rounded-full flex items-center gap-1 mb-3">
+            <Share2 size={11} /> Most Shared
+          </div>
+          <div className="w-full">
+            <MemoryCard memory={{
+              ...weeklyWinners.shared,
+              yearColor: "bg-purple-400",
+              caption: weeklyWinners.shared.description,
+            }} />
+          </div>
+        </div>
+      )}
+    </div>
 
+    <div className="border-t border-purple-100 my-6" />
+  </div>
+)}
       <MemorySlider
         memories={likedMemories}
         title="Most Liked"
