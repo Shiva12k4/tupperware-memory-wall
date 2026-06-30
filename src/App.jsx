@@ -135,13 +135,13 @@ const App = () => {
 {/* Promo Banner Image */}
 <div className="w-full overflow-hidden">
   <img
-    src="/abc.png"
+    src="/evedesk.jpeg"
     alt="Tupperware Promotion"
     className="hidden sm:block w-full object-cover"
   />
   {/* Mobile Banner */}
 <img
-  src="/mobile.png"
+  src="/evemob.jpeg"
   alt="Tupperware Promotion"
   className="block sm:hidden w-full object-cover"
 />

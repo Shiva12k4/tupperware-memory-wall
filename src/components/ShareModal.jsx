@@ -202,7 +202,11 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
   const validateStep1 = () => {
     const newErrors = {};
     if (!formData.name) newErrors.name = "Name is required";
-    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.email) {
+  newErrors.email = "Email is required";
+} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+  newErrors.email = "Please enter a valid email address";
+}
     if (!formData.mobile) {
       newErrors.mobile = "Mobile is required";
     } else if (formData.mobile.length < 9 || formData.mobile.length > 12) {
