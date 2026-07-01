@@ -8,8 +8,10 @@ const dummyMemory = {
   state: "Selangor",
   year: "1992",
   story_title: "My First Tupperware",
-  description: "This was my first Tupperware from my mom when I started secondary school. Still using it today!",
-  image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
+  description:
+    "This was my first Tupperware from my mom when I started secondary school. Still using it today!",
+  image:
+    "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
   video: null,
 };
 
@@ -46,7 +48,7 @@ const MemoryCardShare = ({ onClose }) => {
             img.onload = resolve;
             img.onerror = resolve;
           });
-        })
+        }),
       );
 
       // Small delay to ensure browser has painted everything
@@ -55,7 +57,7 @@ const MemoryCardShare = ({ onClose }) => {
       const canvas = await html2canvas(cardRef.current, {
         scale: window.devicePixelRatio || 2,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: null,
         logging: true,
         imageTimeout: 0,
@@ -67,7 +69,7 @@ const MemoryCardShare = ({ onClose }) => {
       });
 
       const blob = await new Promise((resolve) =>
-        canvas.toBlob(resolve, "image/png", 1)
+        canvas.toBlob(resolve, "image/png", 1),
       );
 
       if (!blob) {
@@ -124,9 +126,11 @@ const MemoryCardShare = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 relative">
-
         {/* Close */}
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
           <X size={20} />
         </button>
 
@@ -147,7 +151,7 @@ const MemoryCardShare = ({ onClose }) => {
           {/* Prev */}
           {displayMemories.length > 1 && (
             <button
-              onClick={() => setCurrentIndex(i => Math.max(0, i - 1))}
+              onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
               disabled={currentIndex === 0}
               className="w-8 h-8 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center hover:bg-purple-50 disabled:opacity-30"
             >
@@ -158,8 +162,13 @@ const MemoryCardShare = ({ onClose }) => {
           {/* Memory Card */}
           <div
             ref={cardRef}
-            className="flex-1 rounded-2xl overflow-hidden shadow-lg"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #ec4899)" }}
+            className="flex-1"
+            style={{
+              background: "#9333ea",
+              borderRadius: "24px",
+              overflow: "hidden",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+            }}
           >
             {/* Image */}
             {current.image ? (
@@ -170,7 +179,11 @@ const MemoryCardShare = ({ onClose }) => {
                 className="w-full h-40 object-cover"
               />
             ) : current.video ? (
-              <video src={current.video} className="w-full h-40 object-cover" muted />
+              <video
+                src={current.video}
+                className="w-full h-40 object-cover"
+                muted
+              />
             ) : (
               <div className="w-full h-40 bg-purple-300 flex items-center justify-center">
                 <p className="text-white text-4xl">📦</p>
@@ -178,35 +191,39 @@ const MemoryCardShare = ({ onClose }) => {
             )}
 
             {/* Card Content */}
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="bg-white bg-opacity-20 rounded-full px-3 py-1">
-                  <p className="text-white text-xs font-black">Tupperware® 80 Years</p>
-                </div>
-                <span className="bg-white bg-opacity-20 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {current.year}
-                </span>
-              </div>
+<div style={{ padding: "16px" }}>
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+    <div style={{  borderRadius: "999px", padding: "4px 12px" }}>
+      <p style={{ color: "white", fontSize: "11px", fontWeight: "bold", margin: 0, whiteSpace: "nowrap" }}>Tupperware® 80 Years</p>
+    </div>
+    <span style={{  color: "white", fontSize: "11px", fontWeight: "bold", padding: "4px 8px", borderRadius: "999px", whiteSpace: "nowrap" }}>
+      {current.year}
+    </span>
+  </div>
 
-              <p className="text-white font-black text-base leading-tight">{current.name}</p>
-              <p className="text-pink-200 text-xs mb-2">{current.city}, {current.state}</p>
-              <p className="text-white font-bold text-sm mb-1">{current.story_title}</p>
-              <p className="text-pink-100 text-xs leading-relaxed line-clamp-2">
-                "{current.description}"
-              </p>
+  <p style={{ color: "white", fontWeight: "900", fontSize: "16px", margin: "0 0 4px 0", lineHeight: "1.3" }}>{current.name}</p>
+  <p style={{ color: "#f9a8d4", fontSize: "11px", margin: "0 0 8px 0" }}>{current.city}, {current.state}</p>
+  <p style={{ color: "white", fontWeight: "700", fontSize: "13px", margin: "0 0 4px 0" }}>{current.story_title}</p>
+  <p style={{ color: "#fce7f3", fontSize: "11px", lineHeight: "1.5", margin: 0, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+    "{current.description}"
+  </p>
 
-              <div className="mt-3 pt-3 border-t border-white border-opacity-20">
-                <p className="text-white text-xs opacity-70 text-center">
-                  Malaysia's Largest Tupperware Memory Wall
-                </p>
-              </div>
-            </div>
+  <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
+    <p style={{ color: "white", fontSize: "10px", opacity: 0.7, textAlign: "center", margin: 0 }}>
+      Malaysia's Largest Tupperware Memory Wall
+    </p>
+  </div>
+</div>
           </div>
 
           {/* Next */}
           {displayMemories.length > 1 && (
             <button
-              onClick={() => setCurrentIndex(i => Math.min(displayMemories.length - 1, i + 1))}
+              onClick={() =>
+                setCurrentIndex((i) =>
+                  Math.min(displayMemories.length - 1, i + 1),
+                )
+              }
               disabled={currentIndex === displayMemories.length - 1}
               className="w-8 h-8 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center hover:bg-purple-50 disabled:opacity-30"
             >

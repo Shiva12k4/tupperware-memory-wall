@@ -27,42 +27,95 @@ const MemoryCard = ({ memory }) => {
     }
   };
 
-  const handleShare = async (e) => {
-    e.stopPropagation();
-    try {
-      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/share`, {
-        method: "PATCH",
-      });
+ const handleShare = async (e) => {
+  e.stopPropagation();
 
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#fdf2f8",
-      });
+  if (!cardRef.current) return;
 
-      canvas.toBlob(async (blob) => {
-        const file = new File([blob], "tupperware-memory.png", {
-          type: "image/png",
-        });
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: memory.story_title || memory.name,
-            text: memory.description || memory.caption,
-            files: [file],
-          });
-        } else if (navigator.share) {
-          await navigator.share({
-            title: memory.story_title || memory.name,
-            text: memory.description || memory.caption,
-            url: window.location.href,
-          });
+  try {
+    // Update share count
+    await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/share`, {
+      method: "PATCH",
+    });
+
+    // Wait for all images inside card
+    const images = [...cardRef.current.querySelectorAll("img")];
+
+    await Promise.all(
+      images.map((img) => {
+        if (img.complete && img.naturalWidth !== 0) {
+          return Promise.resolve();
         }
-      }, "image/png");
-    } catch (err) {
-      console.error(err);
+
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      })
+    );
+
+    // Small delay to ensure rendering is complete
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const canvas = await html2canvas(cardRef.current, {
+      scale: window.devicePixelRatio || 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#fdf2f8",
+      imageTimeout: 0,
+      logging: false,
+      removeContainer: true,
+      scrollX: 0,
+      scrollY: -window.scrollY,
+      windowWidth: document.documentElement.scrollWidth,
+      windowHeight: document.documentElement.scrollHeight,
+    });
+
+    const blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, "image/png", 1)
+    );
+
+    if (!blob) {
+      throw new Error("Failed to create image.");
     }
-  };
+
+    const file = new File([blob], "tupperware-memory.png", {
+      type: "image/png",
+    });
+
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+      await navigator.share({
+        title: memory.story_title || memory.name,
+        text: memory.description || memory.caption,
+        files: [file],
+      });
+    } else if (navigator.share) {
+      await navigator.share({
+        title: memory.story_title || memory.name,
+        text: memory.description || memory.caption,
+        url: window.location.href,
+      });
+    } else {
+      // Fallback download
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tupperware-memory.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      URL.revokeObjectURL(url);
+    }
+  } catch (err) {
+    console.error("Share Error:", err);
+  }
+};
 
   return (
     <>

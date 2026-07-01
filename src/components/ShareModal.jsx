@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import API_URL, { fetchWithNgrok } from "../api";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import imageCompression from "browser-image-compression";
@@ -216,6 +216,7 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
   const [errors, setErrors] = useState({});
+  const imageInputRef = useRef(null); 
 
   const malaysiaStates = [
     "Johor",
@@ -258,30 +259,32 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
   };
 
   const handleImages = async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 5) {
-      alert("Maximum 5 images allowed!");
-      return;
-    }
+  const files = Array.from(e.target.files);
+  const totalImages = images.length + files.length;
+  
+  if (totalImages > 5) {
+    alert(`You can only upload maximum 5 images! You already have ${images.length}.`);
+    return;
+  }
 
-    const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-      initialQuality: 0.8,
-      fileType: "image/webp",
-    };
-
-    try {
-      const compressed = await Promise.all(
-        files.map((file) => imageCompression(file, options)),
-      );
-      setImages(compressed);
-    } catch (err) {
-      console.error("Compression error:", err);
-      setImages(files);
-    }
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+    initialQuality: 0.8,
+    fileType: "image/webp",
   };
+
+  try {
+    const compressed = await Promise.all(
+      files.map((file) => imageCompression(file, options))
+    );
+    setImages(prev => [...prev, ...compressed]); // ✅ merge karo
+  } catch (err) {
+    console.error("Compression error:", err);
+    setImages(prev => [...prev, ...files]);
+  }
+};
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
@@ -292,8 +295,11 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
   };
 
   const removeImage = (index) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
+  setImages(images.filter((_, i) => i !== index));
+  if (images.length <= 1 && imageInputRef.current) {
+    imageInputRef.current.value = "";
+  }
+};
 
   const handleVideos = (e) => {
     const files = Array.from(e.target.files);
@@ -718,6 +724,7 @@ const ShareModal = ({ onClose, onSubmitStart, onSubmitSuccess }) => {
                   <input
                     type="file"
                     accept="image/*"
+                    ref={imageInputRef}
                     multiple
                     onChange={handleImages}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-purple-400"
