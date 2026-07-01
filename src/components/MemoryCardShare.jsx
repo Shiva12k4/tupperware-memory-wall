@@ -29,33 +29,79 @@ const MemoryCardShare = ({ onClose }) => {
 
   const handleShare = async () => {
     if (!cardRef.current) return;
+
     setSharing(true);
+
     try {
+      // Wait for all images inside card
+      const images = [...cardRef.current.querySelectorAll("img")];
+
+      await Promise.all(
+        images.map((img) => {
+          if (img.complete && img.naturalWidth !== 0) {
+            return Promise.resolve();
+          }
+
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        })
+      );
+
+      // Small delay to ensure browser has painted everything
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
       const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
+        scale: window.devicePixelRatio || 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: null,
+        logging: true,
+        imageTimeout: 0,
+        removeContainer: true,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: document.documentElement.scrollHeight,
       });
 
-      canvas.toBlob(async (blob) => {
-        const file = new File([blob], "my-tupperware-memory.png", { type: "image/png" });
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: `${current.name}'s Tupperware Memory`,
-            text: `${current.story_title} — ${current.description}`,
-            files: [file],
-          });
-        } else {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "my-tupperware-memory.png";
-          link.click();
-        }
-      }, "image/png");
-    } catch (err) {
-      console.error("Share error:", err);
+      const blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, "image/png", 1)
+      );
+
+      if (!blob) {
+        throw new Error("Canvas blob could not be created.");
+      }
+
+      const file = new File([blob], "memory-card.png", {
+        type: "image/png",
+      });
+
+      if (
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare({ files: [file] })
+      ) {
+        await navigator.share({
+          title: "Memory Card",
+          text: current.story_title,
+          files: [file],
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "memory-card.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error("Share Error:", error);
     } finally {
       setSharing(false);
     }
@@ -120,6 +166,7 @@ const MemoryCardShare = ({ onClose }) => {
               <img
                 src={current.image}
                 alt="memory"
+                crossOrigin="anonymous"
                 className="w-full h-40 object-cover"
               />
             ) : current.video ? (
