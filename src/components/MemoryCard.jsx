@@ -6,98 +6,93 @@ import html2canvas from "html2canvas";
 
 const MemoryCard = ({ memory }) => {
   const [likes, setLikes] = useState(memory.likes);
-  const [liked, setLiked] = useState(() => {
-    const likedIds = JSON.parse(localStorage.getItem("likedMemories") || "[]");
-    return likedIds.includes(memory.id);
-  });
+  const [liked, setLiked] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const cardRef = useRef(null);
-  const shareCardRef = useRef(null);
 
   const handleLike = async (e) => {
     e.stopPropagation();
-    const likedIds = JSON.parse(localStorage.getItem("likedMemories") || "[]");
     if (liked) {
       setLikes(likes - 1);
       setLiked(false);
-      localStorage.setItem("likedMemories", JSON.stringify(likedIds.filter(id => id !== memory.id)));
-      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/unlike`, { method: "PATCH" });
+      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/unlike`, {
+        method: "PATCH",
+      });
     } else {
       setLikes(likes + 1);
       setLiked(true);
-      localStorage.setItem("likedMemories", JSON.stringify([...likedIds, memory.id]));
-      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/like`, { method: "PATCH" });
-    }
-  };
-
-  const handleShare = async (e) => {
-    e.stopPropagation();
-    if (!shareCardRef.current) return;
-
-    try {
-      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/share`, { method: "PATCH" });
-
-      // Wait for images in share card
-      const imgs = [...shareCardRef.current.querySelectorAll("img")];
-      await Promise.all(
-        imgs.map((img) => {
-          if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
-          return new Promise((resolve) => {
-            img.onload = resolve;
-            img.onerror = resolve;
-          });
-        })
-      );
-
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const canvas = await html2canvas(shareCardRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#7c3aed",
-        imageTimeout: 0,
-        logging: false,
+      await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/like`, {
+        method: "PATCH",
       });
-
-      const blob = await new Promise((resolve) =>
-        canvas.toBlob(resolve, "image/png", 1)
-      );
-
-      if (!blob) throw new Error("Failed to create image.");
-
-      const file = new File([blob], "tupperware-memory.png", { type: "image/png" });
-
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: memory.story_title || memory.name,
-          text: memory.description || memory.caption,
-          files: [file],
-        });
-      } else if (navigator.share) {
-        await navigator.share({
-          title: memory.story_title || memory.name,
-          text: memory.description || memory.caption,
-          url: window.location.href,
-        });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "tupperware-memory.png";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    } catch (err) {
-      console.error("Share Error:", err);
     }
   };
+
+ const handleShare = async (e) => {
+  e.stopPropagation();
+  if (!cardRef.current) return;
+
+  try {
+    await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/share`, { method: "PATCH" });
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Clone karo card ko
+    const clone = cardRef.current.cloneNode(true);
+    clone.style.position = "fixed";
+    clone.style.top = "-9999px";
+    clone.style.left = "-9999px";
+    clone.style.width = cardRef.current.offsetWidth + "px";
+    clone.style.borderRadius = "0";
+    document.body.appendChild(clone);
+
+    const canvas = await html2canvas(clone, {
+      scale: window.devicePixelRatio || 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: "null",
+      imageTimeout: 0,
+      logging: false,
+    });
+
+    document.body.removeChild(clone);
+
+    const blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, "image/png", 1)
+    );
+
+    if (!blob) throw new Error("Failed to create image.");
+
+    const file = new File([blob], "tupperware-memory.png", { type: "image/png" });
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: memory.story_title || memory.name,
+        text: memory.description || memory.caption,
+        files: [file],
+      });
+    } else if (navigator.share) {
+      await navigator.share({
+        title: memory.story_title || memory.name,
+        text: memory.description || memory.caption,
+        url: window.location.href,
+      });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tupperware-memory.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  } catch (err) {
+    console.error("Share Error:", err);
+  }
+};
 
   return (
     <>
-      {/* Visible Card */}
       <div
         ref={cardRef}
         onClick={() => setShowPopup(true)}
@@ -105,16 +100,22 @@ const MemoryCard = ({ memory }) => {
       >
         {/* Top — Avatar + Name + Year */}
         <div className="flex items-center justify-between px-3 pt-3 pb-1">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-s font-bold flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white text-s font-bold">
               {memory.name?.charAt(0)}
             </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-purple-800 leading-tight truncate">{memory.name}</p>
-              <p className="text-xs text-blue-800 font-semibold truncate">{memory.city}</p>
+            <div>
+              <p className="text-xs font-bold text-purple-800 leading-tight">
+                {memory.name}
+              </p>
+              <p className="text-xs text-blue-800 font-semibold">
+                {memory.city}
+              </p>
             </div>
           </div>
-          <span className={`${memory.yearColor || "bg-pink-400"} text-white text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 ml-2`}>
+          <span
+            className={`${memory.yearColor || "bg-pink-400"} text-white text-xs font-bold px-2 py-1 rounded-full`}
+          >
             {memory.year}
           </span>
         </div>
@@ -125,6 +126,7 @@ const MemoryCard = ({ memory }) => {
             src={memory.images?.[0] || memory.image_url || memory.image}
             alt={memory.name}
             loading="lazy"
+            crossOrigin="anonymous"
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
         </div>
@@ -138,61 +140,37 @@ const MemoryCard = ({ memory }) => {
 
         {/* Like + Share */}
         <div className="px-3 pb-3 flex items-center justify-between">
+          {/* Like — Left */}
           <button
             onClick={handleLike}
             className={`flex items-center gap-1 transition-all duration-200 ${liked ? "scale-110" : ""}`}
           >
-            <Heart size={18} className={liked ? "text-red-500 fill-red-500" : "text-gray-400"} />
+            <Heart
+              size={18}
+              className={liked ? "text-red-500 fill-red-500" : "text-gray-400"}
+            />
             <span className="text-sm font-semibold text-gray-500">{likes}</span>
           </button>
+
+          {/* Share — Right */}
           <button
             onClick={handleShare}
             className="flex items-center gap-1 text-gray-400 hover:text-purple-500 transition-all"
           >
             <Share2 size={16} />
+            {/* <span className="text-sm font-semibold text-gray-500">
+              {memory.shares || 0}
+            </span> */}
           </button>
         </div>
       </div>
 
-      {/* Hidden Share Card — Capture ke liye */}
-      <div
-        ref={shareCardRef}
-        style={{
-          position: "fixed",
-          top: "-9999px",
-          left: "-9999px",
-          width: "300px",
-          background: "linear-gradient(135deg, #7c3aed, #ec4899)",
-          overflow: "hidden",
-        }}
-      >
-        <img
-          src={memory.images?.[0] || memory.image_url || memory.image}
-          alt={memory.name}
-          style={{ width: "100%", height: "160px", objectFit: "cover" }}
-        />
-        <div style={{ padding: "16px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-            <p style={{ color: "white", fontSize: "11px", fontWeight: "bold", margin: 0 }}>Tupperware® 80 Years</p>
-            <span style={{ color: "white", fontSize: "11px", fontWeight: "bold" }}>{memory.year}</span>
-          </div>
-          <p style={{ color: "white", fontWeight: "900", fontSize: "16px", margin: "0 0 4px 0", lineHeight: "1.3" }}>{memory.name}</p>
-          <p style={{ color: "#f9a8d4", fontSize: "11px", margin: "0 0 8px 0" }}>{memory.city}, {memory.state}</p>
-          <p style={{ color: "white", fontWeight: "700", fontSize: "13px", margin: "0 0 4px 0" }}>{memory.story_title}</p>
-          <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
-            <p style={{ color: "white", fontSize: "10px", opacity: 0.7, textAlign: "center", margin: 0 }}>
-              Malaysia's Largest Tupperware Memory Wall
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {showPopup && (
-        <MemoryPopup
-          memory={{...memory, likes: likes}}
-          onClose={() => setShowPopup(false)}
-        />
-      )}
+     {showPopup && (
+  <MemoryPopup
+    memory={{...memory, likes: likes}}
+    onClose={() => setShowPopup(false)}
+  />
+)}
     </>
   );
 };
