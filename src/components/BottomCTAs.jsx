@@ -5,6 +5,7 @@ import {
   Gift,
   ArrowRight,
   ChevronRight,
+  ShoppingBag,
 } from "lucide-react";
 import { useState } from "react";
 import MemoryCardShare from "./MemoryCardShare";
@@ -18,22 +19,56 @@ const BottomCTAs = ({ onShareClick }) => {
 
   return (
     <>
-    {/* Shop Now Button */}
-<div className="flex justify-center px-6 pt-6 pb-2">
-  <a
-    href="https://shop.tupperwarebrands.com.my/collections/monthly-offers"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="bg-gradient-to-r from-purple-500 to-pink-400 text-white font-black text-sm sm:text-base px-6 sm:px-10 py-2.5 sm:py-3 rounded-full shadow-lg"
-    style={{
-      animation: "shopPulse 1.5s ease-in-out infinite",
-    }}
-  >
-  SHOP NOW
-  </a>
+ {/* Shop Now — Desktop full width, Mobile grid card */}
+<div className="hidden lg:block mx-6 mb-0">
+  <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 rounded-2xl p-5 shadow-lg flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+        <ShoppingBag className="text-white" size={18} />
+      </div>
+      <div>
+        <h3 className="text-white font-black text-lg leading-tight">Shop Tupperware at Exclusive Prices!</h3>
+        <p className="text-pink-100 text-xs mt-1">Grab amazing deals today</p>
+      </div>
+    </div>
+    <a
+      href="https://shop.tupperwarebrands.com.my/collections/monthly-offers"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex-shrink-0 bg-white text-purple-600 font-bold text-sm px-6 py-2.5 rounded-full hover:bg-pink-50 transition-all ml-4 flex items-center gap-1"
+      style={{ animation: "shopPulse 1.5s ease-in-out infinite" }}
+    >
+      SHOP NOW <ArrowRight size={14} />
+    </a>
+  </div>
+</div>
+
+{/* Grid — 4 cards desktop, Shop Now card mobile mein */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 ">
+
+  {/* Shop Now — Sirf Mobile */}
+  <div className="lg:hidden bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 rounded-2xl p-5 shadow-lg flex flex-col justify-between min-h-36">
+    <div>
+      <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center mb-3">
+        <ShoppingBag className="text-white" size={18} />
+      </div>
+      <h3 className="text-white font-black text-lg leading-tight">Shop Tupperware at Exclusive Prices!</h3>
+      <p className="text-pink-100 text-xs mt-1">Grab amazing deals today</p>
+    </div>
+    <a
+      href="https://shop.tupperwarebrands.com.my/collections/monthly-offers"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-4 bg-white text-purple-600 font-bold text-sm px-4 py-2 rounded-full hover:bg-pink-50 transition-all w-fit flex items-center gap-1"
+      style={{ animation: "shopPulse 1.5s ease-in-out infinite" }}
+    >
+      SHOP NOW <ArrowRight size={14} />
+    </a>
+  </div>
 </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-6">
+  
          {/* 4 — Daily Winner */}
 <div className="bg-yellow-50 rounded-2xl p-5 shadow-md flex flex-col justify-between border border-yellow-100 min-h-36">
   <div>
