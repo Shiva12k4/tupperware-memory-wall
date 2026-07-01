@@ -58,7 +58,7 @@ const MemoryCardShare = ({ onClose }) => {
         scale: window.devicePixelRatio || 2,
         useCORS: true,
         allowTaint: false,
-        backgroundColor: null,
+        backgroundColor: "#9333ea",
         logging: true,
         imageTimeout: 0,
         removeContainer: true,
@@ -87,7 +87,7 @@ const MemoryCardShare = ({ onClose }) => {
       ) {
         await navigator.share({
           title: "Memory Card",
-          text: current.story_title,
+          text: `Memory Description: ${current.description}`,
           files: [file],
         });
       } else {
@@ -165,9 +165,7 @@ const MemoryCardShare = ({ onClose }) => {
             className="flex-1"
             style={{
               background: "#9333ea",
-              borderRadius: "24px",
               overflow: "hidden",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
             }}
           >
             {/* Image */}
@@ -204,9 +202,9 @@ const MemoryCardShare = ({ onClose }) => {
   <p style={{ color: "white", fontWeight: "900", fontSize: "16px", margin: "0 0 4px 0", lineHeight: "1.3" }}>{current.name}</p>
   <p style={{ color: "#f9a8d4", fontSize: "11px", margin: "0 0 8px 0" }}>{current.city}, {current.state}</p>
   <p style={{ color: "white", fontWeight: "700", fontSize: "13px", margin: "0 0 4px 0" }}>{current.story_title}</p>
-  <p style={{ color: "#fce7f3", fontSize: "11px", lineHeight: "1.5", margin: 0, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+  {/* <p style={{ color: "#fce7f3", fontSize: "11px", lineHeight: "1.5", margin: 0, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
     "{current.description}"
-  </p>
+  </p> */}
 
   <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
     <p style={{ color: "white", fontSize: "10px", opacity: 0.7, textAlign: "center", margin: 0 }}>
