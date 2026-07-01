@@ -54,7 +54,7 @@ const MemoryCard = ({ memory }) => {
       const canvas = await html2canvas(shareCardRef.current, {
         scale: 2,
         useCORS: true,
-        allowTaint: false,
+        allowTaint: true,
         backgroundColor: "#7c3aed",
         imageTimeout: 0,
         logging: false,
@@ -169,7 +169,6 @@ const MemoryCard = ({ memory }) => {
         <img
           src={memory.images?.[0] || memory.image_url || memory.image}
           alt={memory.name}
-          crossOrigin="anonymous"
           style={{ width: "100%", height: "160px", objectFit: "cover" }}
         />
         <div style={{ padding: "16px" }}>
