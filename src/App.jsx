@@ -147,10 +147,7 @@ const App = () => {
                 </div>
               </div>
               {/* Promo Banner Image */}
-              <div
-                className="w-full overflow-hidden cursor-pointer"
-                onClick={() => setShowModal(true)}
-              >
+              <a href="https://shop.tupperwarebrands.com.my/collections/monthly-offers" target="_blank" rel="noopener noreferrer" className="w-full overflow-hidden block cursor-pointer">
                 <img
                   src="/neweve.jpeg"
                   alt="Tupperware Promotion"
@@ -162,7 +159,7 @@ const App = () => {
                   alt="Tupperware Promotion"
                   className="block sm:hidden w-full object-cover"
                 />
-              </div>
+              </a>
               {/* Main Container */}
               <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100 rounded-3xl shadow-md mx-2 my-4 overflow-hidden">
                 <FilterBar

@@ -18,6 +18,20 @@ const BottomCTAs = ({ onShareClick }) => {
 
   return (
     <>
+    {/* Shop Now Button */}
+<div className="flex justify-center px-6 pt-6 pb-2">
+  <a
+    href="https://shop.tupperwarebrands.com.my/collections/monthly-offers"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-gradient-to-r from-purple-500 to-pink-400 text-white font-black text-sm sm:text-base px-6 sm:px-10 py-2.5 sm:py-3 rounded-full shadow-lg"
+    style={{
+      animation: "shopPulse 1.5s ease-in-out infinite",
+    }}
+  >
+  SHOP NOW
+  </a>
+</div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-6">
          {/* 4 — Daily Winner */}

@@ -45,3 +45,8 @@ input, textarea {
   animation: cracker 1s ease-out forwards;
   animation-fill-mode: forwards;
 }
+@keyframes shopPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
