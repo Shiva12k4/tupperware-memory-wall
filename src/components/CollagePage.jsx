@@ -5,7 +5,7 @@ import MemoryPopup from "./MemoryPopup";
 const CollagePage = () => {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMemory, setSelectedMemory] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const ITEMS_PER_PAGE = 40;
@@ -45,15 +45,9 @@ const CollagePage = () => {
 
       {/* Banner */}
       <div className="relative flex items-center py-4 px-6 overflow-hidden bg-white border-b-2 border-purple-100">
-
-      
-
-        {/* Back Button */}
         <a href="/" className="flex-shrink-0 flex items-center gap-1 bg-purple-100 text-purple-600 font-bold text-sm px-3 py-2 rounded-full hover:bg-purple-200 transition-all relative z-10">
           ← Back
         </a>
-
-        {/* Title */}
         <div className="flex-1 text-center relative z-10">
           <h1 className="text-xl sm:text-3xl font-black text-purple-800 drop-shadow-sm">
             Tupperware Memory Wall
@@ -62,8 +56,6 @@ const CollagePage = () => {
             Every container holds a memory ♡
           </p>
         </div>
-
-        {/* Spacer */}
         <div className="flex-shrink-0 w-16" />
       </div>
 
@@ -81,13 +73,12 @@ const CollagePage = () => {
           <>
             {/* Instagram Grid */}
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1 sm:gap-2">
-              {memories.map((memory) => (
+              {memories.map((memory, index) => (
                 <div
                   key={memory.id}
-                  onClick={() => setSelectedMemory(memory)}
+                  onClick={() => setSelectedIndex(index)}
                   className="cursor-pointer group overflow-hidden rounded-lg sm:rounded-xl bg-white"
                 >
-                  {/* Image */}
                   {memory.images?.[0] ? (
                     <div className="relative aspect-square overflow-hidden">
                       <img
@@ -112,12 +103,11 @@ const CollagePage = () => {
                     </div>
                   )}
 
-                 
                   {/* Mobile — Always visible below image */}
-<div className="sm:hidden px-2 py-1.5 bg-white text-center">
-  <p className="text-purple-800 font-bold text-xs truncate">{memory.name}</p>
-  <p className="text-pink-500 text-xs truncate">{memory.city} · {memory.year}</p>
-</div>
+                  <div className="sm:hidden px-2 py-1.5 bg-white text-center">
+                    <p className="text-purple-800 font-bold text-xs truncate">{memory.name}</p>
+                    <p className="text-pink-500 text-xs truncate">{memory.city} · {memory.year}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -137,15 +127,17 @@ const CollagePage = () => {
         )}
       </div>
 
-      {/* Memory Popup */}
-      {selectedMemory && (
+      {/* Memory Popup with Prev/Next */}
+      {selectedIndex !== null && (
         <MemoryPopup
           memory={{
-            ...selectedMemory,
-            caption: selectedMemory.description,
+            ...memories[selectedIndex],
+            caption: memories[selectedIndex].description,
             yearColor: "bg-pink-400",
           }}
-          onClose={() => setSelectedMemory(null)}
+          onClose={() => setSelectedIndex(null)}
+          onPrev={selectedIndex > 0 ? () => setSelectedIndex(selectedIndex - 1) : null}
+          onNext={selectedIndex < memories.length - 1 ? () => setSelectedIndex(selectedIndex + 1) : null}
         />
       )}
     </div>

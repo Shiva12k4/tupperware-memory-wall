@@ -5,6 +5,7 @@ import MemoryPopup from "./MemoryPopup";
 
 const MemoryGrid = ({ memories, viewMode }) => {
   const scrollRef = useRef(null);
+  const touchStartX = useRef(null);
   const [mobilePage, setMobilePage] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const MOBILE_PER_PAGE = 2;
@@ -18,6 +19,18 @@ const MemoryGrid = ({ memories, viewMode }) => {
         behavior: "smooth",
       });
     }
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartX.current) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (diff > 50) setMobilePage(p => Math.min(totalMobilePages - 1, p + 1));
+    else if (diff < -50) setMobilePage(p => Math.max(0, p - 1));
+    touchStartX.current = null;
   };
 
   const totalMobilePages = Math.ceil(memories.length / MOBILE_PER_PAGE);
@@ -60,16 +73,13 @@ const MemoryGrid = ({ memories, viewMode }) => {
   }
 
   const MobileSlider = () => (
-    <div className="sm:hidden relative">
-      <button
-        onClick={() => setMobilePage(p => Math.max(0, p - 1))}
-        disabled={mobilePage === 0}
-        className="absolute -left-3 top-1/3 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center disabled:opacity-30"
+    <div className="sm:hidden">
+      {/* Cards */}
+      <div
+        className="flex flex-col gap-4 px-2"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
-        <ChevronLeft className="text-purple-600" size={18} />
-      </button>
-
-      <div className="flex flex-col gap-4 px-6">
         {mobileMemories.map((memory, i) => {
           const actualIndex = mobilePage * MOBILE_PER_PAGE + i;
           return (
@@ -82,17 +92,30 @@ const MemoryGrid = ({ memories, viewMode }) => {
         })}
       </div>
 
-      <button
-        onClick={() => setMobilePage(p => Math.min(totalMobilePages - 1, p + 1))}
-        disabled={mobilePage === totalMobilePages - 1}
-        className="absolute -right-3 top-1/3 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center disabled:opacity-30"
-      >
-        <ChevronRight className="text-purple-600" size={18} />
-      </button>
+      {/* Arrows + Count neeche center mein */}
+      {totalMobilePages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-4">
+          <button
+            onClick={() => setMobilePage(p => Math.max(0, p - 1))}
+            disabled={mobilePage === 0}
+            className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center disabled:opacity-30"
+          >
+            <ChevronLeft className="text-purple-600" size={18} />
+          </button>
 
-      <p className="text-center text-xs text-gray-400 font-semibold mt-3">
-        {mobilePage + 1} / {totalMobilePages}
-      </p>
+          <span className="text-xs text-gray-400 font-semibold">
+            {mobilePage + 1} / {totalMobilePages}
+          </span>
+
+          <button
+            onClick={() => setMobilePage(p => Math.min(totalMobilePages - 1, p + 1))}
+            disabled={mobilePage === totalMobilePages - 1}
+            className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center disabled:opacity-30"
+          >
+            <ChevronRight className="text-purple-600" size={18} />
+          </button>
+        </div>
+      )}
     </div>
   );
 
