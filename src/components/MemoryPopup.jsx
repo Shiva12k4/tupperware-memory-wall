@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
-const MemoryPopup = ({ memory, onClose }) => {
+const MemoryPopup = ({ memory, onClose, onPrev, onNext }) => {
   const allMedia = [
     ...(memory.images || []).map((url) => ({ type: "image", url })),
     ...(memory.videos || []).map((url) => ({ type: "video", url })),
@@ -127,6 +127,26 @@ const MemoryPopup = ({ memory, onClose }) => {
               <span className="text-lg">❤️</span>
               <span className="text-sm font-semibold text-gray-500">{memory.likes} likes</span>
             </div>
+
+            {/* Prev / Next Memory */}
+{(onPrev || onNext) && (
+  <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
+    <button
+      onClick={onPrev}
+      disabled={!onPrev}
+      className="flex items-center gap-1 text-purple-600 font-bold text-sm px-4 py-2 rounded-full bg-purple-50 hover:bg-purple-100 disabled:opacity-30 disabled:cursor-not-allowed"
+    >
+      <ChevronLeft size={16} /> Previous
+    </button>
+    <button
+      onClick={onNext}
+      disabled={!onNext}
+      className="flex items-center gap-1 text-purple-600 font-bold text-sm px-4 py-2 rounded-full bg-purple-50 hover:bg-purple-100 disabled:opacity-30 disabled:cursor-not-allowed"
+    >
+      Next <ChevronRight size={16} />
+    </button>
+  </div>
+)}
 
           </div>
         </div>

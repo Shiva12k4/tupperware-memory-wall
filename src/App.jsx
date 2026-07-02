@@ -162,6 +162,12 @@ const App = () => {
               </a>
               {/* Main Container */}
               <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100 rounded-3xl shadow-md mx-2 my-4 overflow-hidden">
+                {/* Memories Heading */}
+<div className="px-6 pt-6 pb-2 text-center">
+  <h2 className="text-xl sm:text-3xl font-black text-purple-800">
+    Malaysia's Tupperware Memories
+  </h2>
+</div>
                 <FilterBar
                   activeCategory={activeCategory}
                   setActiveCategory={setActiveCategory}

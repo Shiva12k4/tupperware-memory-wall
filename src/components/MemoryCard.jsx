@@ -1,16 +1,14 @@
 import { useState, useRef } from "react";
 import API_URL, { fetchWithNgrok } from "../api";
-import MemoryPopup from "./MemoryPopup";
 import { Share2, Heart } from "lucide-react";
 import html2canvas from "html2canvas";
 
-const MemoryCard = ({ memory }) => {
+const MemoryCard = ({ memory, onClick }) => {
   const [likes, setLikes] = useState(memory.likes);
   const [liked, setLiked] = useState(() => {
     const likedIds = JSON.parse(localStorage.getItem("likedMemories") || "[]");
     return likedIds.includes(memory.id);
   });
-  const [showPopup, setShowPopup] = useState(false);
   const shareCardRef = useRef(null);
 
   const handleLike = async (e) => {
@@ -36,7 +34,6 @@ const MemoryCard = ({ memory }) => {
     try {
       await fetchWithNgrok(`${API_URL}/api/memories/${memory.id}/share`, { method: "PATCH" });
 
-      // Wait for all images — same as MemoryCardShare.jsx
       const imgs = [...shareCardRef.current.querySelectorAll("img")];
       await Promise.all(
         imgs.map((img) => {
@@ -101,9 +98,9 @@ const MemoryCard = ({ memory }) => {
 
   return (
     <>
-      {/* Visible Card — bilkul same rahega */}
+      {/* Visible Card */}
       <div
-        onClick={() => setShowPopup(true)}
+        onClick={onClick}
         className="bg-pink-50 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
       >
         <div className="flex items-center justify-between px-3 pt-3 pb-1">
@@ -153,7 +150,7 @@ const MemoryCard = ({ memory }) => {
         </div>
       </div>
 
-      {/* Hidden Share Card — MemoryCardShare.jsx jaisa format */}
+      {/* Hidden Share Card */}
       <div
         ref={shareCardRef}
         style={{
@@ -165,7 +162,6 @@ const MemoryCard = ({ memory }) => {
           overflow: "hidden",
         }}
       >
-        {/* Image — crossOrigin same as MemoryCardShare */}
         {(memory.images?.[0] || memory.image_url || memory.image) ? (
           <img
             src={memory.images?.[0] || memory.image_url || memory.image}
@@ -178,8 +174,6 @@ const MemoryCard = ({ memory }) => {
             <span style={{ fontSize: "40px" }}>📦</span>
           </div>
         )}
-
-        {/* Card Content — same as MemoryCardShare.jsx */}
         <div style={{ padding: "16px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <div style={{ borderRadius: "999px", padding: "4px 12px" }}>
@@ -199,13 +193,6 @@ const MemoryCard = ({ memory }) => {
           </div>
         </div>
       </div>
-
-      {showPopup && (
-        <MemoryPopup
-          memory={{...memory, likes: likes}}
-          onClose={() => setShowPopup(false)}
-        />
-      )}
     </>
   );
 };
