@@ -138,17 +138,11 @@ const MemorySlider = ({ memories, title, icon }) => {
         </button>
       </div>
 
-      {/* Dots */}
-      <div className="flex justify-center gap-1.5 mt-3">
-        {memories.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1.5 rounded-full transition-all ${
-              i === currentIndex ? "bg-purple-500 w-4" : "bg-gray-300 w-1.5"
-            }`}
-          />
-        ))}
-      </div>
+      
+      {/* Page Number */}
+<p className="text-center text-xs text-gray-400 font-semibold mt-3">
+  {currentIndex + 1} / {memories.length}
+</p>
     </div>
   );
 };
@@ -190,6 +184,7 @@ const FeaturedModal = ({ onClose }) => {
           [...thisWeek].sort((a, b) => (b.shares || 0) - (a.shares || 0))[0] ||
           null;
         setWeeklyWinners({ liked: topLiked, shared: topShared });
+        console.log("All memories shares:", all.map(m => ({ name: m.name, shares: m.shares })));
 
         // fetchMemories mein add karo
         const specialRes = await fetchWithNgrok(
@@ -204,23 +199,28 @@ const FeaturedModal = ({ onClose }) => {
         }
 
         // Period filter
-        let filtered = all;
-        const now = new Date();
-        if (period === "week") {
-          filtered = filtered.filter((m) => new Date(m.created_at) >= weekAgo);
-        } else if (period === "month") {
-          const monthAgo = new Date(now);
-          monthAgo.setMonth(monthAgo.getMonth() - 1);
-          filtered = filtered.filter((m) => new Date(m.created_at) >= monthAgo);
-        } else if (period === "custom" && customStart && customEnd) {
-          const start = new Date(customStart);
-          const end = new Date(customEnd);
-          end.setHours(23, 59, 59);
-          filtered = filtered.filter((m) => {
-            const d = new Date(m.created_at);
-            return d >= start && d <= end;
-          });
-        }
+let filtered = all;
+const now = new Date();
+
+if (period === "today") {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  filtered = filtered.filter(m => new Date(m.created_at) >= today);
+} else if (period === "yesterday") {
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); yesterday.setHours(0, 0, 0, 0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  filtered = filtered.filter(m => new Date(m.created_at) >= yesterday && new Date(m.created_at) < today);
+} else if (period === "week") {
+  const wAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  wAgo.setHours(0, 0, 0, 0);
+  filtered = filtered.filter(m => new Date(m.created_at) >= wAgo);
+} else if (period === "month") {
+  const monthAgo = new Date(now); monthAgo.setMonth(monthAgo.getMonth() - 1);
+  filtered = filtered.filter(m => new Date(m.created_at) >= monthAgo);
+} else if (period === "custom" && customStart && customEnd) {
+  const start = new Date(customStart);
+  const end = new Date(customEnd); end.setHours(23, 59, 59);
+  filtered = filtered.filter(m => { const d = new Date(m.created_at); return d >= start && d <= end; });
+}
 
         const liked = [...filtered]
           .sort((a, b) => (b.likes || 0) - (a.likes || 0))

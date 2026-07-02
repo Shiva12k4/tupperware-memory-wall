@@ -1082,7 +1082,7 @@ const AdminDashboard = () => {
                   <div className={hasExtraCol ? "col-span-1" : "col-span-2"}>
                     Description
                   </div>
-                  <div className="col-span-1 text-right">Actions</div>
+                  <div className="col-span-2 text-right">Actions</div>
                 </div>
 
                 {/* Mobile Header */}
@@ -1169,7 +1169,7 @@ const AdminDashboard = () => {
                           maxLength={30}
                         />
                       </div>
-                      <div className="col-span-1 flex items-center justify-end gap-1">
+                      <div className="col-span-2 flex items-center justify-end gap-1">
                         {activeTab === "pending" && (
                           <>
                             <button
